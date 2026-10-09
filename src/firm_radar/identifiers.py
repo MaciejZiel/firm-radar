@@ -106,3 +106,9 @@ def search_key(name: str) -> str:
     decomposed = unicodedata.normalize("NFKD", name.replace("ł", "l").replace("Ł", "L"))
     stripped = "".join(c for c in decomposed if not unicodedata.combining(c))
     return re.sub(r"\s+", " ", stripped).strip().lower()
+
+
+def like_pattern(text: str) -> str:
+    """``%text%`` for SQL LIKE with the user's own wildcards escaped (default escape ``\\``)."""
+    escaped = text.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
+    return f"%{escaped}%"
