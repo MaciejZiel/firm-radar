@@ -40,6 +40,10 @@ class Company(Base):
     tracked: Mapped[bool] = mapped_column(Boolean, default=True, server_default="true")
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     last_checked_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    # Where the latest data came from (URLs, fetch times, failures); see schemas.SourceRef.
+    source_refs: Mapped[list[dict[str, Any]]] = mapped_column(
+        JSONB, default=list, server_default="[]"
+    )
 
     snapshots: Mapped[list[Snapshot]] = relationship(
         back_populates="company", order_by="Snapshot.taken_at", cascade="all, delete-orphan"

@@ -17,8 +17,10 @@ from sqlalchemy.ext.asyncio import (
 from firm_radar import models  # noqa: F401
 from firm_radar.config import Settings
 from firm_radar.db import Base
+from firm_radar.main import create_app
 from firm_radar.sources import Sources
 from firm_radar.sources.store import PgSourceStore
+from tests.asgi import AsgiClient
 
 TEST_DB = os.environ.get(
     "FIRM_RADAR_TEST_DATABASE_URL",
@@ -68,3 +70,12 @@ async def sources(
 ) -> AsyncIterator[Sources]:
     async with aiohttp.ClientSession() as session:
         yield Sources.build(session, settings, PgSourceStore(sessionmaker))
+
+
+@pytest.fixture
+async def client(
+    settings: Settings, sessionmaker: async_sessionmaker[AsyncSession], http: aioresponses
+) -> AsyncIterator[AsgiClient]:
+    app = create_app(settings)
+    async with app.router.lifespan_context(app):
+        yield AsgiClient(app)

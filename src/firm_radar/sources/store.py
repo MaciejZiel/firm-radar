@@ -73,7 +73,7 @@ class PgSourceStore:
         now = utcnow()
         stmt = insert(SourceStatus).values(
             source=source.value,
-            day=now.date(),
+            day=today(),
             requests=1,
             errors=0 if ok else 1,
             last_ok_at=now if ok else None,
