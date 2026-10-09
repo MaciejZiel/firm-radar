@@ -1,0 +1,32 @@
+# Local demo: `docker compose up --build`, then open http://localhost:8093
+name: firm-radar-demo
+
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: firm_radar
+      POSTGRES_PASSWORD: firm_radar
+      POSTGRES_DB: firm_radar
+    ports:
+      - "55433:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U firm_radar -d firm_radar"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  app:
+    build: .
+    environment:
+      FIRM_RADAR_DATABASE_URL: postgresql+asyncpg://firm_radar:firm_radar@db:5432/firm_radar
+    ports:
+      - "8093:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  pgdata:
