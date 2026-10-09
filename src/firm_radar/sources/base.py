@@ -9,6 +9,7 @@ from dataclasses import dataclass
 from datetime import UTC, date, datetime, timedelta
 from enum import StrEnum
 from typing import Any, Protocol
+from zoneinfo import ZoneInfo
 
 import aiohttp
 
@@ -147,5 +148,9 @@ def utcnow() -> datetime:
     return datetime.now(UTC)
 
 
+WARSAW = ZoneInfo("Europe/Warsaw")
+
+
 def today() -> date:
-    return utcnow().date()
+    """Calendar day in Poland; registries and their daily quotas follow local time."""
+    return utcnow().astimezone(WARSAW).date()
