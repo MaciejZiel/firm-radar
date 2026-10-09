@@ -1,0 +1,113 @@
+{
+  "odpis": {
+    "rodzaj": "Aktualny",
+    "naglowekA": {
+      "rejestr": "RejP",
+      "numerKRS": "0000999901",
+      "dataCzasOdpisu": "01.09.2026 10:00:00",
+      "stanZDnia": "05.10.2026",
+      "dataRejestracjiWKRS": "15.03.2019",
+      "numerOstatniegoWpisu": 8,
+      "dataOstatniegoWpisu": "05.10.2026",
+      "sygnaturaAktSprawyDotyczacejOstatniegoWpisu": "XX.TEST NS-REJ.KRS/1/26/1",
+      "oznaczenieSaduDokonujacegoOstatniegoWpisu": "SĄD TESTOWY",
+      "stanPozycji": 1
+    },
+    "dane": {
+      "dzial1": {
+        "danePodmiotu": {
+          "formaPrawna": "SPÓŁKA Z OGRANICZONĄ ODPOWIEDZIALNOŚCIĄ",
+          "identyfikatory": {
+            "regon": "12345678500000",
+            "nip": "1234563218"
+          },
+          "nazwa": "PRZYKŁADOWA SPÓŁKA TESTOWA SPÓŁKA Z OGRANICZONĄ ODPOWIEDZIALNOŚCIĄ",
+          "czyProwadziDzialalnoscZInnymiPodmiotami": false,
+          "czyPosiadaStatusOPP": false
+        },
+        "siedzibaIAdres": {
+          "siedziba": {
+            "kraj": "POLSKA",
+            "wojewodztwo": "MAZOWIECKIE",
+            "powiat": "FIKCYJNY",
+            "gmina": "FIKCYJNA",
+            "miejscowosc": "TESTOWO"
+          },
+          "adres": {
+            "ulica": "UL. ZMYŚLONA",
+            "nrDomu": "10",
+            "miejscowosc": "TESTOWO",
+            "kodPocztowy": "00-001",
+            "poczta": "TESTOWO",
+            "kraj": "POLSKA"
+          },
+          "adresStronyInternetowej": "WWW.EXAMPLE.TEST"
+        },
+        "kapital": {
+          "wysokoscKapitaluZakladowego": {
+            "wartosc": "50000,00",
+            "waluta": "PLN"
+          }
+        }
+      },
+      "dzial2": {
+        "reprezentacja": {
+          "nazwaOrganu": "ZARZĄD",
+          "sposobReprezentacji": "KAŻDY CZŁONEK ZARZĄDU REPREZENTUJE SPÓŁKĘ SAMODZIELNIE.",
+          "sklad": [
+            {
+              "nazwisko": {
+                "nazwiskoICzlon": "T*****"
+              },
+              "imiona": {
+                "imie": "J**"
+              },
+              "identyfikator": {
+                "pesel": "9**********"
+              },
+              "funkcjaWOrganie": "PREZES ZARZĄDU",
+              "czyZawieszona": false
+            },
+            {
+              "nazwisko": {
+                "nazwiskoICzlon": "N****"
+              },
+              "imiona": {
+                "imie": "A***"
+              },
+              "identyfikator": {
+                "pesel": "8**********"
+              },
+              "funkcjaWOrganie": "CZŁONEK ZARZĄDU",
+              "czyZawieszona": false
+            }
+          ]
+        },
+        "prokurenci": []
+      },
+      "dzial3": {
+        "przedmiotDzialalnosci": {
+          "przedmiotPrzewazajacejDzialalnosci": [
+            {
+              "opis": "DZIAŁALNOŚĆ ZWIĄZANA Z OPROGRAMOWANIEM",
+              "kodDzial": "62",
+              "kodKlasa": "01",
+              "kodPodklasa": "Z"
+            }
+          ],
+          "przedmiotPozostalejDzialalnosci": [
+            {
+              "opis": "DOKĄD SIĘGA WYOBRAŹNIA - DZIAŁALNOŚĆ TESTOWA",
+              "kodDzial": "74",
+              "kodKlasa": "90",
+              "kodPodklasa": "Z"
+            }
+          ]
+        }
+      },
+      "dzial4": {},
+      "dzial5": {},
+      "dzial6": {}
+    }
+  }
+}
