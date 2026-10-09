@@ -2,15 +2,17 @@
 
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import date, datetime
 from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 from pydantic.config import JsonDict
 
-from firm_radar.models import Change, Company, Snapshot
+from firm_radar.models import Change, Company, ProcurementAward, Snapshot
 from firm_radar.schemas import CompanyData, SourceRef
 from firm_radar.services.diff import FieldChange
+from firm_radar.services.procurement import AwardSummary
+from firm_radar.sources.bzp import NOTICE_PDF_URL
 
 EXAMPLE_COMPANY: JsonDict = {
     "id": 1,
@@ -50,6 +52,15 @@ class CompanySummary(BaseModel):
         )
 
 
+class CandidateOut(BaseModel):
+    """A contractor seen in BZP award notices but not looked up yet; open it by NIP."""
+
+    name: str
+    nip: str
+    awards: int
+    source: Literal["bzp"] = "bzp"
+
+
 class SearchOut(BaseModel):
     model_config = ConfigDict(
         json_schema_extra={
@@ -67,6 +78,9 @@ class SearchOut(BaseModel):
     kind: Literal["krs", "nip", "regon", "name"]
     value: str
     results: list[CompanySummary]
+    candidates: list[CandidateOut] = Field(
+        default_factory=list, description="Name matches among BZP contractors (name search only)"
+    )
     note: str | None = Field(default=None, description="Why the result may be incomplete")
 
 
@@ -94,20 +108,70 @@ class ChangeOut(BaseModel):
         return cls(field=c.field, kind=c.kind, old=c.old, new=c.new)
 
 
+class AwardOut(BaseModel):
+    bzp_number: str
+    published_at: datetime
+    order_object: str
+    order_type: str | None
+    buyer_name: str
+    buyer_city: str | None
+    lots_won: int
+    notice_url: str
+
+    @classmethod
+    def of(cls, a: ProcurementAward) -> AwardOut:
+        return cls(
+            bzp_number=a.bzp_number,
+            published_at=a.published_at,
+            order_object=a.order_object,
+            order_type=a.order_type,
+            buyer_name=a.buyer_name,
+            buyer_city=a.buyer_city,
+            lots_won=a.parts_won,
+            notice_url=NOTICE_PDF_URL.format(a.notice_id),
+        )
+
+
+class ProcurementOut(BaseModel):
+    total_awards: int = Field(description="Award notices naming this NIP as a contractor")
+    total_lots: int
+    coverage_from: date | None = Field(description="First ingested BZP publication day")
+    coverage_to: date | None
+    coverage_days: int
+    recent: list[AwardOut]
+
+    @classmethod
+    def of(cls, s: AwardSummary) -> ProcurementOut:
+        return cls(
+            total_awards=s.total_awards,
+            total_lots=s.total_lots,
+            coverage_from=s.coverage_from,
+            coverage_to=s.coverage_to,
+            coverage_days=s.coverage_days,
+            recent=[AwardOut.of(a) for a in s.recent],
+        )
+
+
 class ProfileOut(BaseModel):
     company: CompanySummary
     snapshot_id: int
     snapshot_taken_at: datetime
     data: CompanyData
+    procurement: ProcurementOut | None = Field(
+        default=None, description="Public procurement awards; null when the NIP is unknown"
+    )
     sources: list[SourceRef]
 
     @classmethod
-    def of(cls, company: Company, snapshot: Snapshot) -> ProfileOut:
+    def of(
+        cls, company: Company, snapshot: Snapshot, awards: AwardSummary | None = None
+    ) -> ProfileOut:
         return cls(
             company=CompanySummary.of(company),
             snapshot_id=snapshot.id,
             snapshot_taken_at=snapshot.taken_at,
             data=CompanyData.model_validate(snapshot.data),
+            procurement=ProcurementOut.of(awards) if awards else None,
             sources=[SourceRef.model_validate(r) for r in company.source_refs or []],
         )
 
@@ -138,6 +202,57 @@ class DiffOut(BaseModel):
     from_taken_at: datetime
     to_taken_at: datetime
     changes: list[ChangeOut]
+
+
+class SourceHealthOut(BaseModel):
+    model_config = ConfigDict(
+        json_schema_extra={
+            "example": {
+                "source": "whitelist",
+                "label": "Biała lista podatników VAT",
+                "status": "ok",
+                "docs_url": "https://www.gov.pl/web/kas/api-wykazu-podatnikow-vat",
+                "terms": "Public register with a public API; no registration.",
+                "limits": "search: 100 queries/day",
+                "requests_today": 12,
+                "errors_today": 0,
+                "last_ok_at": "2026-10-05T08:00:00Z",
+                "last_error_at": None,
+                "last_error": None,
+                "cached_responses": 40,
+                "daily_budget": 80,
+                "budget_left": 68,
+            }
+        }
+    )
+
+    source: str
+    label: str
+    status: Literal["ok", "degraded", "down", "unknown"]
+    docs_url: str
+    terms: str
+    limits: str
+    requests_today: int
+    errors_today: int
+    last_ok_at: datetime | None
+    last_error_at: datetime | None
+    last_error: str | None
+    cached_responses: int
+    daily_budget: int | None = None
+    budget_left: int | None = None
+
+
+class BzpCoverageOut(BaseModel):
+    days: int
+    first_day: date | None
+    last_day: date | None
+    awards: int
+
+
+class HealthOut(BaseModel):
+    sources: list[SourceHealthOut]
+    bzp_coverage: BzpCoverageOut
+    scheduler_enabled: bool
 
 
 class ErrorOut(BaseModel):

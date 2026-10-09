@@ -10,7 +10,7 @@ from dataclasses import dataclass, field
 from sqlalchemy import or_, select
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
-from firm_radar.identifiers import IdKind, Query, search_key
+from firm_radar.identifiers import IdKind, Query, like_pattern, search_key
 from firm_radar.models import Change, Company, Snapshot
 from firm_radar.schemas import CompanyData, Identifiers, KrsData, SourceRef, VatData
 from firm_radar.services.diff import FieldChange, diff
@@ -297,7 +297,7 @@ class ProfileService:
     # --- reading -------------------------------------------------------------------------------
 
     async def search_local(self, text: str, limit: int = 20) -> list[Company]:
-        pattern = f"%{search_key(text)}%"
+        pattern = like_pattern(search_key(text))
         async with self._sessionmaker() as session:
             rows = await session.scalars(
                 select(Company)
