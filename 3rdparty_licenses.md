@@ -5,7 +5,7 @@ Every third-party component this repository depends on (runtime, dev/test and bu
 | source | name | license type | license link |
 |---|---|---|---|
 | https://pypi.org/project/aiohappyeyeballs/2.7.1/ | aiohappyeyeballs 2.7.1 | PSF-2.0 | https://github.com/aio-libs/aiohappyeyeballs/blob/main/LICENSE |
-| https://pypi.org/project/aiohttp/3.14.3/ | aiohttp 3.14.3 | Apache-2.0 AND MIT | https://github.com/aio-libs/aiohttp/blob/master/LICENSE.txt |
+| https://pypi.org/project/aiohttp/3.13.5/ | aiohttp 3.13.5 | Apache-2.0 AND MIT | https://github.com/aio-libs/aiohttp/blob/master/LICENSE.txt |
 | https://pypi.org/project/aioresponses/0.7.9/ | aioresponses 0.7.9 | MIT | https://github.com/pnuckowski/aioresponses/blob/master/LICENSE |
 | https://pypi.org/project/aiosignal/1.4.0/ | aiosignal 1.4.0 | Apache-2.0 | https://github.com/aio-libs/aiosignal/blob/master/LICENSE |
 | https://pypi.org/project/alembic/1.20.0/ | alembic 1.20.0 | MIT | https://github.com/sqlalchemy/alembic/blob/main/LICENSE |
