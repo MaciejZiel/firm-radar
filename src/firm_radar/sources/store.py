@@ -5,7 +5,7 @@ from __future__ import annotations
 from datetime import datetime, timedelta
 from typing import Any
 
-from sqlalchemy import delete, select
+from sqlalchemy import delete, func, select
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
@@ -52,6 +52,17 @@ class PgSourceStore:
             await session.commit()
         return now
 
+    async def cache_invalidate(self, source: SourceName, key_pattern: str) -> int:
+        """Drop cached responses whose key matches a SQL LIKE pattern."""
+        async with self._sessionmaker() as session:
+            result = await session.execute(
+                delete(SourceCache).where(
+                    SourceCache.source == source.value, SourceCache.key.like(key_pattern)
+                )
+            )
+            await session.commit()
+        return int(getattr(result, "rowcount", 0) or 0)
+
     async def purge_expired(self) -> int:
         async with self._sessionmaker() as session:
             result = await session.execute(
@@ -93,3 +104,40 @@ class PgSourceStore:
         async with self._sessionmaker() as session:
             await session.execute(stmt)
             await session.commit()
+
+    async def status_today(self) -> dict[str, SourceStatus]:
+        async with self._sessionmaker() as session:
+            rows = await session.scalars(select(SourceStatus).where(SourceStatus.day == today()))
+            return {row.source: row for row in rows}
+
+    async def last_seen(self) -> dict[str, tuple[datetime | None, datetime | None, str | None]]:
+        """Most recent success/failure per source over all days."""
+        async with self._sessionmaker() as session:
+            rows = await session.execute(
+                select(
+                    SourceStatus.source,
+                    func.max(SourceStatus.last_ok_at),
+                    func.max(SourceStatus.last_error_at),
+                ).group_by(SourceStatus.source)
+            )
+            result: dict[str, tuple[datetime | None, datetime | None, str | None]] = {}
+            for source, last_ok, last_error_at in rows:
+                message = None
+                if last_error_at is not None:
+                    message = await session.scalar(
+                        select(SourceStatus.last_error).where(
+                            SourceStatus.source == source,
+                            SourceStatus.last_error_at == last_error_at,
+                        )
+                    )
+                result[source] = (last_ok, last_error_at, message)
+            return result
+
+    async def cache_entries(self) -> dict[str, int]:
+        async with self._sessionmaker() as session:
+            rows = await session.execute(
+                select(SourceCache.source, func.count())
+                .where(SourceCache.expires_at > utcnow())
+                .group_by(SourceCache.source)
+            )
+            return {source: int(count) for source, count in rows}
