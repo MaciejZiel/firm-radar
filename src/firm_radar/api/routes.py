@@ -6,11 +6,14 @@ from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends, HTTPException, Path, Query, Request, status
 
+from firm_radar.api.health import build_health
 from firm_radar.api.models import (
+    CandidateOut,
     ChangeOut,
     CompanySummary,
     DiffOut,
     ErrorOut,
+    HealthOut,
     HistoryOut,
     ProfileOut,
     RefreshOut,
@@ -20,6 +23,7 @@ from firm_radar.api.models import (
 from firm_radar.identifiers import IdKind, detect
 from firm_radar.schemas import CompanyData
 from firm_radar.services.diff import diff
+from firm_radar.services.procurement import ProcurementService
 from firm_radar.services.profiles import (
     AllSourcesFailed,
     CompanyNotFound,
@@ -41,7 +45,13 @@ def get_profiles(request: Request) -> ProfileService:
     return service
 
 
+def get_procurement(request: Request) -> ProcurementService:
+    service: ProcurementService = request.app.state.procurement
+    return service
+
+
 Profiles = Annotated[ProfileService, Depends(get_profiles)]
+Procurement = Annotated[ProcurementService, Depends(get_procurement)]
 
 
 @router.get(
@@ -53,6 +63,7 @@ Profiles = Annotated[ProfileService, Depends(get_profiles)]
 )
 async def search(
     profiles: Profiles,
+    procurement: Procurement,
     q: Annotated[
         str,
         Query(
@@ -75,13 +86,20 @@ async def search(
 
     if query.kind is IdKind.NAME:
         companies = await profiles.search_local(query.value)
+        known = {c.nip for c in companies if c.nip}
+        candidates = [
+            CandidateOut(name=c.name, nip=c.nip, awards=c.awards)
+            for c in await procurement.search_contractors(query.value)
+            if c.nip not in known
+        ]
         return SearchOut(
             query=q,
             kind="name",
             value=query.value,
             results=[CompanySummary.of(c) for c in companies],
+            candidates=candidates,
             note=None
-            if companies
+            if companies or candidates
             else "Registries offer no name search; look the company up by KRS or NIP first.",
         )
     try:
@@ -109,11 +127,15 @@ async def search(
     summary="Company profile from the latest snapshot, with source references",
     responses=ERRORS,
 )
-async def profile(company_id: CompanyId, profiles: Profiles) -> ProfileOut:
+async def profile(
+    company_id: CompanyId, profiles: Profiles, procurement: Procurement
+) -> ProfileOut:
     found = await profiles.get(company_id)
     if found is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "company not found")
-    return ProfileOut.of(*found)
+    company, snapshot = found
+    awards = await procurement.summary(company.nip) if company.nip else None
+    return ProfileOut.of(company, snapshot, awards)
 
 
 @router.post(
@@ -189,3 +211,14 @@ async def snapshot_diff(
         to_taken_at=newer.taken_at,
         changes=[ChangeOut.of(c) for c in changes],
     )
+
+
+@router.get(
+    "/sources/health",
+    response_model=HealthOut,
+    tags=["meta"],
+    summary="Registry status: today's calls, errors, quota left, cache size, BZP coverage",
+)
+async def sources_health(request: Request) -> HealthOut:
+    state = request.app.state
+    return await build_health(state.settings, state.sources.store, state.db.sessionmaker)

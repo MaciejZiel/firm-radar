@@ -124,3 +124,42 @@ async def test_missing_company(client: AsgiClient) -> None:
     assert (await client.get("/api/v1/companies/999")).status_code == 404
     assert (await client.get("/api/v1/companies/999/history")).status_code == 404
     assert (await client.get("/api/v1/companies/999/diff")).status_code == 404
+
+
+async def test_sources_health(client: AsgiClient, http: aioresponses) -> None:
+    _register_v1(http)
+    await client.get("/api/v1/search", params={"q": KRS_NO})
+    health = (await client.get("/api/v1/sources/health")).json()
+    by_source = {s["source"]: s for s in health["sources"]}
+    assert set(by_source) == {"krs", "whitelist", "bzp"}
+    assert by_source["krs"]["status"] == "ok"
+    assert by_source["whitelist"]["budget_left"] == by_source["whitelist"]["daily_budget"] - 1
+    assert by_source["bzp"]["status"] == "unknown"
+    assert health["bzp_coverage"]["days"] == 0
+
+
+async def test_name_search_suggests_bzp_contractors(
+    client: AsgiClient, http: aioresponses, sessionmaker: async_sessionmaker[AsyncSession]
+) -> None:
+    from datetime import date
+
+    from firm_radar.services.procurement import ProcurementService
+    from firm_radar.sources import Sources
+
+    cassettes.bzp_notices(http, "bzp_notices_2026-10-01.json")
+    sources: Sources = client.app.state.sources  # type: ignore[attr-defined]
+    await ProcurementService(sessionmaker, sources.bzp).ingest_day(date(2026, 10, 1))
+
+    found = (await client.get("/api/v1/search", params={"q": "przykładowa"})).json()
+    assert found["results"] == []
+    assert found["candidates"] == [
+        {"name": "Przykładowa Spółka Testowa sp. z o.o.", "nip": NIP, "awards": 2, "source": "bzp"}
+    ]
+
+    _register_v1(http)
+    company_id = (await client.get("/api/v1/search", params={"q": NIP})).json()["results"][0]["id"]
+    profile = (await client.get(f"/api/v1/companies/{company_id}")).json()
+    assert profile["procurement"]["total_awards"] == 2
+    assert profile["procurement"]["recent"][0]["notice_url"].endswith(
+        "noticeId=00000000-0000-0000-0000-000000000002"
+    )

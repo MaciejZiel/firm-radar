@@ -13,6 +13,8 @@ from firm_radar import __version__
 from firm_radar.api.routes import router as api_router
 from firm_radar.config import Settings, get_settings
 from firm_radar.db import Database
+from firm_radar.services.jobs import JobRunner, Scheduler
+from firm_radar.services.procurement import ProcurementService
 from firm_radar.services.profiles import ProfileService
 from firm_radar.sources import Sources
 from firm_radar.sources.store import PgSourceStore
@@ -49,10 +51,21 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         sources = Sources.build(http, settings, store)
         app.state.db = database
         app.state.sources = sources
-        app.state.profiles = ProfileService(database.sessionmaker, sources)
+        profiles = ProfileService(database.sessionmaker, sources)
+        procurement = ProcurementService(database.sessionmaker, sources.bzp)
+        app.state.profiles = profiles
+        app.state.procurement = procurement
+        scheduler: Scheduler | None = None
+        if settings.scheduler_enabled:
+            runner = JobRunner(settings, database.sessionmaker, sources, profiles, procurement)
+            scheduler = Scheduler(runner, settings.refresh_interval_s)
+            scheduler.start()
+        app.state.scheduler = scheduler
         try:
             yield
         finally:
+            if scheduler is not None:
+                await scheduler.stop()
             await http.close()
             await database.dispose()
 
