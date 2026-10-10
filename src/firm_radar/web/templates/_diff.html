@@ -1,0 +1,9 @@
+{% from "_macros.html" import change_item %}
+<div class="diff" id="diff">
+  <h3>{{ fdate(older.taken_at, True) }} → {{ fdate(newer.taken_at, True) }}</h3>
+  {% if changes %}
+    <ul class="changes">{% for c in changes %}{{ change_item(c) }}{% endfor %}</ul>
+  {% else %}
+    <p class="muted small">{{ t('timeline.nochanges') }}</p>
+  {% endif %}
+</div>

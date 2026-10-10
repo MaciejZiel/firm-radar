@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="{{ lang }}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}firmowy radar{% endblock %}</title>
+  <meta name="description" content="{{ t('search.lead') }}">
+  <link rel="stylesheet" href="{{ url_for('static', path='app.css') }}">
+  <script src="{{ url_for('static', path='htmx-2.0.10.min.js') }}" defer></script>
+</head>
+<body>
+  <header class="top">
+    <div class="wrap">
+      <a class="brand" href="/">
+        <svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><circle cx="11" cy="11" r="9.5" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="11" cy="11" r="5" fill="none" stroke="currentColor" stroke-width="1.5" opacity=".5"/><path d="M11 11 L18 5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="11" cy="11" r="1.8" fill="currentColor"/></svg>
+        firmowy radar
+      </a>
+      <nav class="nav">
+        <a href="/" {% if active == 'search' %}aria-current="page"{% endif %}>{{ t('nav.search') }}</a>
+        <a href="/zrodla" {% if active == 'sources' %}aria-current="page"{% endif %}>{{ t('nav.sources') }}</a>
+        <a href="/docs">{{ t('nav.api') }}</a>
+        <a class="lang" href="?lang={{ other_lang }}{% if q %}&amp;q={{ q|urlencode }}{% endif %}" hreflang="{{ other_lang }}" lang="{{ other_lang }}">{{ 'English' if other_lang == 'en' else 'Polski' }}</a>
+      </nav>
+    </div>
+  </header>
+  <main>
+    <div class="wrap">
+      {% block content %}{% endblock %}
+    </div>
+  </main>
+  <footer>
+    <div class="wrap">
+      <p>{{ t('footer.disclaimer') }}</p>
+      <p>{{ 'Źródła' if lang == 'pl' else 'Sources' }}: Krajowy Rejestr Sądowy (Ministerstwo Sprawiedliwości), wykaz podatników VAT (Ministerstwo Finansów), Biuletyn Zamówień Publicznych (Urząd Zamówień Publicznych). <a href="/zrodla">{{ t('nav.sources') }}</a></p>
+    </div>
+  </footer>
+</body>
+</html>

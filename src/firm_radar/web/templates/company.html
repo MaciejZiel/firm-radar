@@ -1,0 +1,210 @@
+{% extends "base.html" %}
+{% from "_macros.html" import change_item %}
+{% block title %}{{ data.name }} – firmowy radar{% endblock %}
+{% block content %}
+{% set krs = data.krs %}
+{% set vat = data.vat %}
+{% set vs = vat_state %}
+<article id="profile">
+  <header class="profile-head">
+    <div>
+      <h1>{{ data.name }}</h1>
+      <p class="form">{{ (data.legal_form or '')|lower|capitalize }}{% if data.city %}, {{ data.city|title }}{% endif %}</p>
+      <div class="status">
+        <span class="pill {{ 'ok' if vs == 'Czynny' else 'warn' if vs in ('Zwolniony', None) else 'bad' }}">{{ vat_label(vs) }}</span>
+        {% if krs %}
+          {% if krs.deregistered_on %}
+            <span class="pill bad">{{ t('company.deregistered') }} {{ fdate(krs.deregistered_on) }}</span>
+          {% else %}
+            <span class="pill">KRS: {{ t('registry.' ~ krs.registry)|lower }}</span>
+          {% endif %}
+        {% endif %}
+      </div>
+    </div>
+    <form class="refresh" method="post" action="/firma/{{ company.id }}/odswiez"
+          hx-post="/firma/{{ company.id }}/odswiez" hx-target="#profile" hx-select="#profile" hx-swap="outerHTML" hx-indicator="#refresh-button">
+      <button id="refresh-button" class="quiet" type="submit">{{ t('company.refresh') }} <span class="spinner" aria-hidden="true"></span></button>
+      <p class="hint">{{ t('company.refreshed') }} {{ fdate(company.last_checked_at, True) }}</p>
+    </form>
+  </header>
+
+  <dl class="idents">
+    {% for label, v in [('KRS', data.identifiers.krs), ('NIP', data.identifiers.nip), ('REGON', data.identifiers.regon)] %}
+      {% if v %}<div><dt>{{ label }}</dt><dd>{{ v }}</dd></div>{% endif %}
+    {% endfor %}
+  </dl>
+
+  <div class="layout">
+    <div>
+      {% if krs %}
+      <section class="block">
+        <div class="rail"><b>KRS</b>{{ t('rail.section') }} 1</div>
+        <div>
+          <h2>{{ t('block.entity') }}</h2>
+          <dl class="facts">
+            {% if data.address %}<dt>{{ t('company.address') }}</dt><dd>{{ data.address }}</dd>{% endif %}
+            {% if data.legal_form %}<dt>{{ t('company.legal_form') }}</dt><dd>{{ data.legal_form|lower|capitalize }}</dd>{% endif %}
+            {% if krs.share_capital %}<dt>{{ t('company.capital') }}</dt><dd class="num">{{ money(krs.share_capital.amount, krs.share_capital.currency) }}</dd>{% endif %}
+            {% if krs.website %}<dt>{{ t('company.website') }}</dt><dd>{{ krs.website|lower }}</dd>{% endif %}
+            <dt>{{ t('company.registered_on') }}</dt><dd class="num">{{ fdate(krs.registered_on) }}</dd>
+            {% if krs.last_entry_no %}<dt>{{ t('company.last_entry') }}</dt><dd class="num">nr {{ krs.last_entry_no }}, {{ fdate(krs.last_entry_on) }}</dd>{% endif %}
+          </dl>
+        </div>
+      </section>
+
+      {% if krs.management or krs.supervisory_boards or krs.proxies %}
+      <section class="block">
+        <div class="rail"><b>KRS</b>{{ t('rail.section') }} 2</div>
+        <div>
+          <h2>{{ t('block.representation') }}</h2>
+          {% if krs.management and krs.management.members %}
+            <p class="subhead">{{ (krs.management.name or t('company.management'))|lower|capitalize }}</p>
+            <ul class="people">
+              {% for m in krs.management.members %}<li><span class="who">{{ m.name }}</span><span class="role">{{ (m.role or '')|lower }}{% if m.suspended %}, {{ t('company.suspended') }}{% endif %}</span></li>{% endfor %}
+            </ul>
+          {% endif %}
+          {% if krs.management and krs.management.representation_rule %}
+            <p class="small"><span class="muted">{{ t('company.representation') }}:</span> {{ krs.management.representation_rule|lower|capitalize }}</p>
+          {% endif %}
+          {% for board in krs.supervisory_boards %}
+            <details class="board" {% if board.members|length <= 6 %}open{% endif %}>
+              <summary>{{ (board.name or t('company.supervisory'))|lower|capitalize }} <span>({{ board.members|length }})</span></summary>
+              <ul class="people">
+                {% for m in board.members %}<li><span class="who">{{ m.name }}</span><span class="role">{{ (m.role or '')|lower }}</span></li>{% endfor %}
+              </ul>
+            </details>
+          {% endfor %}
+          {% if krs.proxies %}
+            <details class="board" {% if krs.proxies|length <= 6 %}open{% endif %}>
+              <summary>{{ t('company.proxies') }} <span>({{ krs.proxies|length }})</span></summary>
+              <ul class="people">
+                {% for m in krs.proxies %}<li><span class="who">{{ m.name }}</span><span class="role">{{ (m.role or '')|lower }}</span></li>{% endfor %}
+              </ul>
+            </details>
+          {% endif %}
+          <p class="footnote">{{ t('company.masked') }}</p>
+        </div>
+      </section>
+      {% endif %}
+
+      {% if krs.main_activity %}
+      <section class="block">
+        <div class="rail"><b>KRS</b>{{ t('rail.section') }} 3</div>
+        <div>
+          <h2>{{ t('block.activity') }}</h2>
+          <dl class="facts">
+            {% for a in krs.main_activity %}<dt class="num">PKD {{ a.code }}</dt><dd>{{ a.description|lower|capitalize }}</dd>{% endfor %}
+          </dl>
+          {% if krs.other_activities %}<p class="footnote">+ {{ krs.other_activities|length }} {{ t('company.activity.other') }}</p>{% endif %}
+        </div>
+      </section>
+      {% endif %}
+      {% else %}
+      <section class="block">
+        <div class="rail"><b>KRS</b></div>
+        <div><p class="muted">{{ t('company.no_krs') }}</p></div>
+      </section>
+      {% endif %}
+
+      <section class="block">
+        <div class="rail"><b>{{ t('rail.whitelist') }}</b>{{ t('rail.whitelist.sub') }}</div>
+        <div>
+          <h2>{{ t('block.vat') }}</h2>
+          <dl class="facts">
+            <dt>{{ t('company.vat') }}</dt>
+            <dd>{{ vat_label(vs) }}{% if vat and vat.registered_on %} <span class="muted">({{ t('company.since') }} {{ fdate(vat.registered_on) }})</span>{% endif %}
+              {% if vat and vat.removed_on %}<br><span class="small">{{ fdate(vat.removed_on) }}: {{ vat.removal_basis or '' }}</span>{% endif %}</dd>
+            {% if vat and vat.working_address and vat.working_address != data.address %}<dt>{{ t('field.vat_working_address') }}</dt><dd>{{ vat.working_address }}</dd>{% endif %}
+            {% if vat %}
+              <dt>{{ t('company.accounts') }}</dt>
+              <dd>
+                {% if vat.account_numbers %}
+                  <ul class="accounts">
+                    {% for acc in vat.account_numbers[:3] %}<li>{{ acc[:2] }} {{ acc[2:6] }} {{ acc[6:10] }} {{ acc[10:14] }} {{ acc[14:18] }} {{ acc[18:22] }} {{ acc[22:] }}</li>{% endfor %}
+                  </ul>
+                  {% if vat.account_numbers|length > 3 %}<span class="muted small">{{ t('company.more_accounts') }} {{ vat.account_numbers|length - 3 }} {{ t('company.more_accounts.tail') }}</span>{% endif %}
+                {% else %}–{% endif %}
+              </dd>
+            {% endif %}
+          </dl>
+        </div>
+      </section>
+
+      {% if awards %}
+      <section class="block">
+        <div class="rail"><b>BZP</b>{{ t('rail.bzp.sub') }}</div>
+        <div>
+          <h2>{{ t('procurement.title') }}</h2>
+          {% if awards.coverage_days %}
+            <div class="figures">
+              <div><b class="num">{{ awards.total_awards }}</b><span class="muted small">{{ t('procurement.awards') }}</span></div>
+              <div><b class="num">{{ awards.total_lots }}</b><span class="muted small">{{ t('procurement.lots') }}</span></div>
+            </div>
+            <p class="footnote">{{ t('procurement.coverage') }} {{ fdate(awards.coverage_from) }}–{{ fdate(awards.coverage_to) }} ({{ awards.coverage_days }} {{ t('sources.days') }}).</p>
+            {% if awards.recent %}
+            <div class="table-scroll">
+              <table>
+                <thead><tr><th>{{ t('procurement.date') }}</th><th>{{ t('procurement.object') }}</th><th>{{ t('procurement.buyer') }}</th><th>{{ t('procurement.notice') }}</th></tr></thead>
+                <tbody>
+                {% for a in awards.recent %}
+                  <tr>
+                    <td class="num nowrap">{{ fdate(a.published_at) }}</td>
+                    <td>{{ a.order_object }}{% if a.lots_won > 1 %} <span class="muted small">({{ a.lots_won }} {{ t('procurement.lots') }})</span>{% endif %}</td>
+                    <td>{{ a.buyer_name }}{% if a.buyer_city %}<br><span class="muted small">{{ a.buyer_city }}</span>{% endif %}</td>
+                    <td class="small nowrap"><a href="{{ a.notice_url }}" rel="noopener" target="_blank">{{ a.bzp_number }}</a></td>
+                  </tr>
+                {% endfor %}
+                </tbody>
+              </table>
+            </div>
+            {% else %}
+              <p>{{ t('procurement.none') }}</p>
+            {% endif %}
+          {% else %}
+            <p class="muted">{{ t('procurement.nocoverage') }}</p>
+          {% endif %}
+        </div>
+      </section>
+      {% endif %}
+    </div>
+
+    <aside>
+      <section class="panel">
+        <h2>{{ t('timeline.title') }}</h2>
+        <ol class="timeline">
+          {% for snap, changes in timeline %}
+            <li class="{{ '' if changes else 'quiet' }}">
+              <time datetime="{{ snap.taken_at.isoformat() }}">{{ fdate(snap.taken_at, True) }}</time>
+              {% if changes %}
+                <ul class="changes">{% for c in changes %}{{ change_item(c) }}{% endfor %}</ul>
+                <a class="small" href="/firma/{{ company.id }}/porownaj?do={{ snap.id }}" hx-get="/firma/{{ company.id }}/porownaj?do={{ snap.id }}" hx-target="#diff-slot">{{ t('timeline.compare') }}</a>
+              {% elif loop.last %}
+                <div class="small muted">{{ t('timeline.first') }}</div>
+              {% else %}
+                <div class="small muted">{{ t('timeline.nochanges') }}</div>
+              {% endif %}
+            </li>
+          {% endfor %}
+        </ol>
+        <div id="diff-slot"></div>
+      </section>
+
+      <section class="panel">
+        <h2>{{ t('sources.title') }}</h2>
+        <ul class="sources">
+          {% for s in sources %}
+            <li>
+              <a href="{{ s.url }}" rel="noopener" target="_blank">{{ s.label }}</a>
+              {% if s.ok %}<span>{{ fdate(s.fetched_at, True) }}{% if s.from_cache %}, {{ t('sources.cache') }}{% endif %}</span>
+              {% else %}<span class="failed">{{ t('sources.failed') }}: {{ s.note or '' }}</span>{% endif %}
+            </li>
+          {% endfor %}
+          {% if awards and awards.coverage_days %}
+            <li><a href="https://ezamowienia.gov.pl/mo-client-board/bzp/list" rel="noopener" target="_blank">Biuletyn Zamówień Publicznych</a><span>{{ fdate(awards.coverage_from) }}–{{ fdate(awards.coverage_to) }}</span></li>
+          {% endif %}
+        </ul>
+      </section>
+    </aside>
+  </div>
+</article>
+{% endblock %}

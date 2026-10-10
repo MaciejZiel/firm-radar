@@ -1,0 +1,34 @@
+{% if error %}
+  <p class="notice error" role="alert">{{ t('search.error') }}: {{ error }}</p>
+{% elif result %}
+  {% if result.results %}
+    <ul class="result-list">
+      {% for c in result.results %}
+      <li>
+        <a class="result" href="/firma/{{ c.id }}">
+          <strong>{{ c.name }}</strong>
+          <span class="id">{% if c.krs %}KRS {{ c.krs }}{% elif c.nip %}NIP {{ c.nip }}{% endif %}</span>
+          <span class="meta">{{ (c.legal_form or '')|lower|capitalize }}{% if c.city %}, {{ c.city|title }}{% endif %}{% if c.nip %}, NIP {{ c.nip }}{% endif %}</span>
+        </a>
+      </li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+  {% if result.candidates %}
+    <h2>{{ t('search.candidates') }}</h2>
+    <ul class="result-list">
+      {% for c in result.candidates %}
+      <li>
+        <a class="result" href="/szukaj?q=nip:{{ c.nip }}">
+          <strong>{{ c.name }}</strong>
+          <span class="id">NIP {{ c.nip }}</span>
+          <span class="meta">{{ c.awards }} {{ t('search.awards') }}</span>
+        </a>
+      </li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+  {% if not result.results and not result.candidates %}
+    <p class="notice">{{ t('search.none') }}{% if result.note %} {{ result.note }}{% endif %}</p>
+  {% endif %}
+{% endif %}

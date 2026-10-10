@@ -5,9 +5,11 @@ from __future__ import annotations
 import logging
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
+from pathlib import Path
 
 import aiohttp
 from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
 
 from firm_radar import __version__
 from firm_radar.api.routes import router as api_router
@@ -18,6 +20,7 @@ from firm_radar.services.procurement import ProcurementService
 from firm_radar.services.profiles import ProfileService
 from firm_radar.sources import Sources
 from firm_radar.sources.store import PgSourceStore
+from firm_radar.web.routes import router as web_router
 
 DESCRIPTION = """
 Company profiles assembled from official Polish public registries:
@@ -79,6 +82,10 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     )
     app.state.settings = settings
     app.include_router(api_router)
+    app.include_router(web_router)
+    app.mount(
+        "/static", StaticFiles(directory=Path(__file__).parent / "web" / "static"), name="static"
+    )
 
     @app.get("/healthz", tags=["meta"], summary="Liveness probe")
     async def healthz() -> dict[str, str]:

@@ -1,0 +1,16 @@
+{% macro value(field, v) -%}
+  {%- if field == 'vat_status' -%}{{ vat_label(v) }}{%- else -%}{{ v }}{%- endif -%}
+{%- endmacro %}
+
+{% macro change_item(c) -%}
+<li class="change">
+  <span class="what"><strong>{{ t('field.' ~ c.field) }}</strong>: {{ t('change.' ~ c.kind) }}</span>
+  {% if c.kind == 'modified' %}
+    <del class="val">{{ value(c.field, c.old) }}</del><ins class="val">{{ value(c.field, c.new) }}</ins>
+  {% elif c.kind == 'added' %}
+    <ins class="val">{{ value(c.field, c.new) }}</ins>
+  {% else %}
+    <del class="val">{{ value(c.field, c.old) }}</del>
+  {% endif %}
+</li>
+{%- endmacro %}

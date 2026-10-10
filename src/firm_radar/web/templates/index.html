@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% set active = 'search' %}
+{% block content %}
+<section class="lookup">
+  <h1>{{ t('search.title') }}</h1>
+  <p class="lead">{{ t('search.lead') }}</p>
+  <form class="search" action="/szukaj" method="get"
+        hx-get="/szukaj" hx-target="#results" hx-push-url="true" hx-indicator="#search-button">
+    <label for="q">{{ t('search.label') }}</label>
+    <input id="q" name="q" type="search" value="{{ q }}" minlength="2" maxlength="200" required
+           autocomplete="off" autofocus placeholder="{{ t('search.placeholder') }}">
+    <button id="search-button" type="submit">{{ t('search.button') }} <span class="spinner" aria-hidden="true"></span></button>
+  </form>
+  <p class="hint">{{ t('search.hint') }}</p>
+  <p class="examples">{{ t('search.examples') }}:{% for value, label in examples %}<a href="/szukaj?q={{ value }}">{{ label }}</a>{% endfor %}</p>
+</section>
+
+<div id="results" class="results" aria-live="polite">
+  {% if result is defined or error is defined %}{% include "_results.html" %}{% endif %}
+</div>
+
+{% if recent %}
+<section class="results">
+  <h2>{{ t('recent.title') }}</h2>
+  <ul class="result-list">
+    {% for c in recent %}
+    <li>
+      <a class="result" href="/firma/{{ c.id }}">
+        <strong>{{ c.name }}</strong>
+        <span class="id">{% if c.krs %}KRS {{ c.krs }}{% else %}NIP {{ c.nip }}{% endif %}</span>
+        <span class="meta">{{ t('company.refreshed') }} {{ fdate(c.last_checked_at, True) }}</span>
+      </a>
+    </li>
+    {% endfor %}
+  </ul>
+</section>
+{% endif %}
+{% endblock %}
