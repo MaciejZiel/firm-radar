@@ -52,5 +52,6 @@ Every third-party component this repository depends on (runtime, dev/test and bu
 | https://pypi.org/project/yarl/1.25.1/ | yarl 1.25.1 | Apache-2.0 | https://github.com/aio-libs/yarl/blob/master/LICENSE |
 | https://pypi.org/project/uv-build/ | uv_build (build backend, <0.12) | MIT OR Apache-2.0 | https://github.com/astral-sh/uv/blob/main/LICENSE-MIT |
 | https://github.com/astral-sh/uv/releases/tag/0.11.7 | uv 0.11.7 (binary copied into the Docker image, CI tool) | MIT OR Apache-2.0 | https://github.com/astral-sh/uv/blob/main/LICENSE-MIT |
+| https://www.npmjs.com/package/htmx.org/v/2.0.10 | htmx.org 2.0.10 (vendored as src/firm_radar/web/static/htmx-2.0.10.min.js) | 0BSD | https://github.com/bigskysoftware/htmx/blob/master/LICENSE |
 | https://hub.docker.com/_/python | python:3.12-slim (Docker base image; CPython) | PSF-2.0 | https://github.com/python/cpython/blob/main/LICENSE |
 | https://hub.docker.com/_/postgres | postgres:17-alpine (Docker image, demo and CI only) | PostgreSQL | https://www.postgresql.org/about/licence/ |
