@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% from "_macros.html" import change_item %}
+{% from "_macros.html" import change_item with context %}
 {% block title %}{{ data.name }} – firmowy radar{% endblock %}
 {% block content %}
 {% set krs = data.krs %}
