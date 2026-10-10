@@ -16,6 +16,8 @@ class SourceInfo:
     docs_url: str
     terms: str
     limits: str
+    terms_pl: str
+    limits_pl: str
 
 
 CATALOG: dict[SourceName, SourceInfo] = {
@@ -31,6 +33,12 @@ CATALOG: dict[SourceName, SourceInfo] = {
             "by the publisher."
         ),
         limits="No published rate limit; responses cached for 12 h.",
+        terms_pl=(
+            "Otwarte API udostępnione na podstawie art. 4b ustawy o KRS w zw. z art. 24 ust. 1 "
+            "ustawy o otwartych danych i ponownym wykorzystywaniu informacji sektora publicznego; "
+            "bez rejestracji, dane osobowe zanonimizowane przez wydawcę."
+        ),
+        limits_pl="Brak opublikowanego limitu; odpowiedzi buforowane przez 12 h.",
     ),
     SourceName.WHITELIST: SourceInfo(
         name=SourceName.WHITELIST,
@@ -46,6 +54,14 @@ CATALOG: dict[SourceName, SourceInfo] = {
             "search: 100 queries/day (max 30 subjects each); exceeding it blocks access until "
             "midnight. Responses cached for 24 h and capped by a daily budget."
         ),
+        terms_pl=(
+            "Rejestr jawny (art. 96b ustawy o VAT) z publicznym API, bez rejestracji. Dane mają "
+            "charakter informacyjny – wiążący jest sam wykaz."
+        ),
+        limits_pl=(
+            "search: 100 zapytań dziennie (do 30 podmiotów w zapytaniu); po przekroczeniu dostęp "
+            "jest blokowany do północy. Odpowiedzi buforowane przez 24 h, z dziennym limitem."
+        ),
     ),
     SourceName.BZP: SourceInfo(
         name=SourceName.BZP,
@@ -58,5 +74,10 @@ CATALOG: dict[SourceName, SourceInfo] = {
             "request (Regulamin korzystania z API, e-Zamówienia)."
         ),
         limits="Max 500 notices per page; ingested once per day for recent days only.",
+        terms_pl=(
+            "API BZP (WebService) do odczytu opublikowanych ogłoszeń jest bezpłatne i nie wymaga "
+            "wniosku dostępowego (Regulamin korzystania z API, e-Zamówienia)."
+        ),
+        limits_pl="Do 500 ogłoszeń na stronę; pobierane raz dziennie, tylko ostatnie dni.",
     ),
 }
