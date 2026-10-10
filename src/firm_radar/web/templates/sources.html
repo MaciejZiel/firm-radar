@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% set active = 'sources' %}
+{% block title %}{{ t('nav.sources') }} – firmowy radar{% endblock %}
+{% block content %}
+<section class="lookup">
+  <h1>{{ t('nav.sources') }}</h1>
+  <p class="lead">{{ t('sources.page.intro') }}</p>
+</section>
+{% for s in health.sources %}
+{% set info = catalog[s.source] %}
+<section class="registry">
+  <div class="rail"><b>{{ s.source|upper if s.source != 'whitelist' else t('rail.whitelist') }}</b>{{ info.publisher }}</div>
+  <div>
+    <h2>{{ s.label }} <span class="pill {{ 'ok' if s.status == 'ok' else 'warn' if s.status in ('degraded', 'unknown') else 'bad' }}">{{ t('status.' ~ s.status) }}</span></h2>
+    <dl class="facts">
+      <dt>{{ t('sources.terms') }}</dt><dd>{{ info.terms_pl if lang == 'pl' else s.terms }} <a href="{{ s.docs_url }}" rel="noopener" target="_blank">{{ t('sources.docs') }}</a></dd>
+      <dt>{{ t('sources.limits') }}</dt><dd>{{ info.limits_pl if lang == 'pl' else s.limits }}</dd>
+      <dt>{{ t('sources.requests') }}</dt><dd class="num">{{ s.requests_today }}</dd>
+      <dt>{{ t('sources.errors') }}</dt><dd class="num">{{ s.errors_today }}{% if s.last_error %} <span class="muted small">({{ fdate(s.last_error_at, True) }}: {{ s.last_error }})</span>{% endif %}</dd>
+      <dt>{{ t('sources.last_ok') }}</dt><dd class="num">{{ fdate(s.last_ok_at, True) }}</dd>
+      <dt>{{ t('sources.cached') }}</dt><dd class="num">{{ s.cached_responses }}</dd>
+      {% if s.daily_budget is not none %}<dt>{{ t('sources.budget') }}</dt><dd class="num">{{ s.budget_left }} / {{ s.daily_budget }}</dd>{% endif %}
+      {% if s.source == 'bzp' %}
+        <dt>{{ t('sources.bzp_coverage') }}</dt>
+        <dd class="num">{% if health.bzp_coverage.days %}{{ fdate(health.bzp_coverage.first_day) }}–{{ fdate(health.bzp_coverage.last_day) }}, {{ health.bzp_coverage.days }} {{ t('sources.days') }}, {{ health.bzp_coverage.awards }} {{ t('procurement.awards') }}{% else %}–{% endif %}</dd>
+      {% endif %}
+    </dl>
+  </div>
+</section>
+{% endfor %}
+{% endblock %}
