@@ -80,10 +80,20 @@ async def search(
     ],
 ) -> SearchOut:
     try:
-        query = detect(q)
-    except ValueError as exc:
+        return await search_companies(q, profiles, procurement)
+    except (ValueError, InvalidQuery) as exc:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, str(exc)) from exc
+    except AllSourcesFailed as exc:
+        raise HTTPException(
+            status.HTTP_503_SERVICE_UNAVAILABLE, f"registries unavailable: {exc}"
+        ) from exc
 
+
+async def search_companies(
+    q: str, profiles: ProfileService, procurement: ProcurementService
+) -> SearchOut:
+    """Shared by the API and the web UI. Raises ValueError/InvalidQuery/AllSourcesFailed."""
+    query = detect(q)
     if query.kind is IdKind.NAME:
         companies = await profiles.search_local(query.value)
         known = {c.nip for c in companies if c.nip}
@@ -106,12 +116,6 @@ async def search(
         result = await profiles.resolve(query)
     except CompanyNotFound:
         return SearchOut(query=q, kind=query.kind.value, value=query.value, results=[])
-    except InvalidQuery as exc:
-        raise HTTPException(status.HTTP_400_BAD_REQUEST, str(exc)) from exc
-    except AllSourcesFailed as exc:
-        raise HTTPException(
-            status.HTTP_503_SERVICE_UNAVAILABLE, f"registries unavailable: {exc}"
-        ) from exc
     return SearchOut(
         query=q,
         kind=query.kind.value,
