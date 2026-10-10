@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 from aioresponses import aioresponses
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
+from firm_radar.models import SourceCache
 from tests import cassettes
 from tests.asgi import AsgiClient
 
@@ -88,3 +90,26 @@ async def test_sources_page(client: AsgiClient) -> None:
     assert page.status_code == 200
     assert "100 zapytań dziennie" in page.text
     assert "https://prs.ms.gov.pl/krs/openApi" in page.text
+
+
+async def test_timeline_and_compare_show_changes(
+    client: AsgiClient, http: aioresponses, sessionmaker: async_sessionmaker[AsyncSession]
+) -> None:
+    _register_v1(http)
+    location = (await client.get("/szukaj", params={"q": KRS_NO})).headers["location"]
+    async with sessionmaker() as session:
+        await session.execute(SourceCache.__table__.delete())
+        await session.commit()
+    cassettes.krs_extract(http, KRS_NO, "krs_odpis_0000999901_v2.json")
+    cassettes.whitelist(http, "nip", NIP, "wl_nip_1234563218.json")
+    await client.post(f"{location}/odswiez")
+
+    page = await client.get(location)
+    assert page.status_code == 200
+    assert "A*** N****" in page.text
+    assert "UL. ZMYŚLONA 10" in page.text
+
+    english = await client.get(f"{location}/porownaj", params={"lang": "en"})
+    assert english.status_code == 200
+    assert "Management board" in english.text
+    assert "added" in english.text

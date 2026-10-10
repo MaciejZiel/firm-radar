@@ -1,4 +1,4 @@
-{% from "_macros.html" import change_item %}
+{% from "_macros.html" import change_item with context %}
 <div class="diff" id="diff">
   <h3>{{ fdate(older.taken_at, True) }} → {{ fdate(newer.taken_at, True) }}</h3>
   {% if changes %}
