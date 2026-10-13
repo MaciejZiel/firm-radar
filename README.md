@@ -28,7 +28,6 @@ Polish, with an English toggle.
   <img src="docs/screenshots/search.png" width="860" alt="Search page of the firmowy radar web UI">
 </p>
 
-
 ## ✨ Features
 
 - **One lookup, three registries.** A NIP or REGON goes to the white list, which returns the
