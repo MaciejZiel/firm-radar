@@ -36,7 +36,7 @@ Polish, with an English toggle.
 |---|---|
 | ![Profile](docs/screenshots/profile.png) | ![Timeline](docs/screenshots/timeline-fictional.png) |
 
-| Data sources and health (English UI) | API docs | Phone |
+| Data sources and health (English UI) | API docs | Mobile layout |
 |---|---|---|
 | ![Sources](docs/screenshots/sources-en.png) | ![OpenAPI](docs/screenshots/openapi.png) | ![Mobile](docs/screenshots/mobile.png) |
 
@@ -130,7 +130,8 @@ docker compose up --build
 docker compose down -v   # stop and remove the demo database
 ```
 
-Local development with [uv](https://docs.astral.sh/uv/):
+Local development needs Python 3.12+, [uv](https://docs.astral.sh/uv/) and Docker (for
+PostgreSQL 17):
 
 ```bash
 docker compose up -d db
