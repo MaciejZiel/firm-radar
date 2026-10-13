@@ -203,6 +203,10 @@ uv run ruff check . && uv run ruff format --check . && uv run mypy
 - The in-process scheduler suits a single instance; several instances are safe (advisory lock)
   but only one does the work.
 
+## Changelog
+
+See [`CHANGELOG.md`](CHANGELOG.md).
+
 ## License
 
 [MIT](LICENSE) © 2026 Maciej Zieliński. Third-party components and their licenses:
