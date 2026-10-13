@@ -39,6 +39,10 @@ class Settings(BaseSettings):
     refresh_batch_size: int = 20
     bzp_ingest_days: int = 3
 
+    # Public read-only demo: seeded fictional data, no upstream calls, no background jobs.
+    demo_mode: bool = False
+    demo_rate_limit_per_minute: int = Field(default=60, ge=0)
+
     @field_validator("database_url")
     @classmethod
     def _force_asyncpg(cls, value: str) -> str:

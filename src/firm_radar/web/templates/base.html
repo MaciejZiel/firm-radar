@@ -23,6 +23,7 @@
       </nav>
     </div>
   </header>
+  {% if demo %}<p class="demo-banner" role="note">{{ t('demo.banner') }}</p>{% endif %}
   <main>
     <div class="wrap">
       {% block content %}{% endblock %}

@@ -211,3 +211,12 @@ aside h2 { font-size: 17px; margin: 0 0 14px; }
 
 footer { border-top: 1px solid var(--rule); padding: 24px 0 44px; color: var(--slate); font-size: 14px; }
 footer p { margin: 0 0 6px; max-width: 90ch; }
+
+.demo-banner {
+  margin: 0;
+  padding: 0.5rem 1rem;
+  background: var(--warn-wash);
+  color: var(--warn);
+  font-size: 0.875rem;
+  text-align: center;
+}

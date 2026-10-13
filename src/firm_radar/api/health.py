@@ -71,5 +71,5 @@ async def build_health(
     return HealthOut(
         sources=sources,
         bzp_coverage=BzpCoverageOut(days=days, first_day=first, last_day=last, awards=awards),
-        scheduler_enabled=settings.scheduler_enabled,
+        scheduler_enabled=settings.scheduler_enabled and not settings.demo_mode,
     )

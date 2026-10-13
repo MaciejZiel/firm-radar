@@ -21,11 +21,11 @@
         {% endif %}
       </div>
     </div>
-    <form class="refresh" method="post" action="/firma/{{ company.id }}/odswiez"
+    {% if not demo %}<form class="refresh" method="post" action="/firma/{{ company.id }}/odswiez"
           hx-post="/firma/{{ company.id }}/odswiez" hx-target="#profile" hx-select="#profile" hx-swap="outerHTML" hx-indicator="#refresh-button">
       <button id="refresh-button" class="quiet" type="submit">{{ t('company.refresh') }} <span class="spinner" aria-hidden="true"></span></button>
       <p class="hint">{{ t('company.refreshed') }} {{ fdate(company.last_checked_at, True) }}</p>
-    </form>
+    </form>{% endif %}
   </header>
 
   <dl class="idents">

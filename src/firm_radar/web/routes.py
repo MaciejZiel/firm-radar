@@ -16,6 +16,7 @@ from sqlalchemy import select
 from firm_radar.api.health import build_health
 from firm_radar.api.models import ChangeOut, ProcurementOut, SearchOut
 from firm_radar.api.routes import search_companies
+from firm_radar.demo import DEMO_EXAMPLES
 from firm_radar.models import Company
 from firm_radar.schemas import CompanyData, SourceRef
 from firm_radar.services.diff import VAT_NOT_REGISTERED, diff
@@ -115,6 +116,7 @@ def _render(
         "money": partial(_money, lang=lang),
         "fdate": partial(_date, lang=lang),
         "vat_label": partial(_vat_label, lang=lang),
+        "demo": request.app.state.settings.demo_mode,
     }
     response = TEMPLATES.TemplateResponse(
         request, template, {**base, **context}, status_code=status_code
@@ -134,6 +136,10 @@ def _procurement(request: Request) -> ProcurementService:
     return service
 
 
+def _examples(request: Request) -> list[tuple[str, str]]:
+    return DEMO_EXAMPLES if request.app.state.settings.demo_mode else EXAMPLES
+
+
 @router.get("/", response_class=HTMLResponse)
 async def index(request: Request) -> Response:
     async with request.app.state.db.sessionmaker() as session:
@@ -142,7 +148,9 @@ async def index(request: Request) -> Response:
                 select(Company).order_by(Company.last_checked_at.desc().nulls_last()).limit(8)
             )
         )
-    return _render(request, "index.html", {"recent": recent, "examples": EXAMPLES, "q": ""})
+    return _render(
+        request, "index.html", {"recent": recent, "examples": _examples(request), "q": ""}
+    )
 
 
 @router.get("/szukaj", response_class=HTMLResponse)
@@ -156,7 +164,12 @@ async def search(request: Request, q: str = "") -> Response:
     error: str | None = None
     if len(q) >= 2:
         try:
-            result = await search_companies(q, _profiles(request), _procurement(request))
+            result = await search_companies(
+                q,
+                _profiles(request),
+                _procurement(request),
+                local_only=request.app.state.settings.demo_mode,
+            )
         except (ValueError, InvalidQuery) as exc:
             error = str(exc)
         except AllSourcesFailed:
@@ -169,7 +182,7 @@ async def search(request: Request, q: str = "") -> Response:
     context = {"q": q, "result": result, "error": error}
     if partial:
         return _render(request, "_results.html", context)
-    return _render(request, "index.html", {**context, "recent": [], "examples": EXAMPLES})
+    return _render(request, "index.html", {**context, "recent": [], "examples": _examples(request)})
 
 
 @router.get("/firma/{company_id}", response_class=HTMLResponse)
