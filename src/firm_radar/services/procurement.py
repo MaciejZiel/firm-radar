@@ -5,6 +5,7 @@ from __future__ import annotations
 import logging
 from dataclasses import dataclass
 from datetime import date, timedelta
+from typing import Any
 
 from sqlalchemy import func, select
 from sqlalchemy.dialects.postgresql import insert
@@ -57,42 +58,55 @@ class ProcurementService:
         notices = awards = 0
         async for page in self._client.result_notices(day):
             notices += len(page)
-            rows = [a for notice in page for a in parse_awards(notice)]
-            if not rows:
-                continue
-            stmt = insert(ProcurementAward).values(
-                [
-                    {
-                        "notice_id": a.notice_id,
-                        "bzp_number": a.bzp_number,
-                        "tender_id": a.tender_id,
-                        "published_at": a.published_at,
-                        "order_type": a.order_type,
-                        "order_object": a.order_object,
-                        "cpv": a.cpv,
-                        "buyer_name": a.buyer_name,
-                        "buyer_nip": a.buyer_nip,
-                        "buyer_city": a.buyer_city,
-                        "contractor_nip": a.contractor_nip,
-                        "contractor_name": a.contractor_name,
-                        "contractor_city": a.contractor_city,
-                        "parts_won": a.parts_won,
-                    }
-                    for a in rows
-                ]
-            )
-            stmt = stmt.on_conflict_do_update(
-                constraint="uq_procurement_awards_notice_nip",
-                set_={
-                    "parts_won": stmt.excluded.parts_won,
-                    "order_object": stmt.excluded.order_object,
-                },
-            )
-            async with self._sessionmaker() as session:
-                await session.execute(stmt)
-                await session.commit()
-            awards += len(rows)
+            awards += await self._store_page(page)
+        await self._mark_day(day, notices, awards)
+        log.info("BZP %s: %d award notices, %d contractor awards", day, notices, awards)
+        return IngestResult(day, notices, awards)
 
+    async def import_notices(self, day: date, notices: list[dict[str, Any]]) -> IngestResult:
+        """Store already-fetched notices for ``day`` (used to seed the demo dataset)."""
+        awards = await self._store_page(notices)
+        await self._mark_day(day, len(notices), awards)
+        return IngestResult(day, len(notices), awards)
+
+    async def _store_page(self, page: list[dict[str, Any]]) -> int:
+        rows = [a for notice in page for a in parse_awards(notice)]
+        if not rows:
+            return 0
+        stmt = insert(ProcurementAward).values(
+            [
+                {
+                    "notice_id": a.notice_id,
+                    "bzp_number": a.bzp_number,
+                    "tender_id": a.tender_id,
+                    "published_at": a.published_at,
+                    "order_type": a.order_type,
+                    "order_object": a.order_object,
+                    "cpv": a.cpv,
+                    "buyer_name": a.buyer_name,
+                    "buyer_nip": a.buyer_nip,
+                    "buyer_city": a.buyer_city,
+                    "contractor_nip": a.contractor_nip,
+                    "contractor_name": a.contractor_name,
+                    "contractor_city": a.contractor_city,
+                    "parts_won": a.parts_won,
+                }
+                for a in rows
+            ]
+        )
+        stmt = stmt.on_conflict_do_update(
+            constraint="uq_procurement_awards_notice_nip",
+            set_={
+                "parts_won": stmt.excluded.parts_won,
+                "order_object": stmt.excluded.order_object,
+            },
+        )
+        async with self._sessionmaker() as session:
+            await session.execute(stmt)
+            await session.commit()
+        return len(rows)
+
+    async def _mark_day(self, day: date, notices: int, awards: int) -> None:
         marker = insert(BzpIngestDay).values(
             day=day, notices=notices, awards=awards, ingested_at=utcnow()
         )
@@ -103,8 +117,6 @@ class ProcurementService:
         async with self._sessionmaker() as session:
             await session.execute(marker)
             await session.commit()
-        log.info("BZP %s: %d award notices, %d contractor awards", day, notices, awards)
-        return IngestResult(day, notices, awards)
 
     async def ingest_recent(self, days: int) -> list[IngestResult]:
         """Ingest complete days only: from ``days`` days ago up to yesterday."""
