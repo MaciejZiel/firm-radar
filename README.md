@@ -63,6 +63,11 @@ does not exist) because a real company needs days or weeks to change. All other 
 show live data from the official APIs; board members' names are masked by the Ministry of
 Justice at source.
 
+All identifiers in the fixtures and the demo dataset are fictional: KRS `0009999901` is far
+above the range the register has issued, and NIP `1234563218`, REGON `123456785` and the
+buyer NIP `1111111111` are common documentation samples that only satisfy the checksum
+rules. They are not guaranteed to be unassigned.
+
 ## Architecture
 
 ```mermaid
