@@ -28,7 +28,7 @@ Polish, with an English toggle.
   <img src="docs/screenshots/search.png" width="860" alt="Search page of the firmowy radar web UI">
 </p>
 
-## ✨ Features
+## Features
 
 - **One lookup, three registries.** A NIP or REGON goes to the white list, which returns the
   KRS number; the KRS number gets the current court extract. Both are merged into one
@@ -63,7 +63,7 @@ does not exist) because a real company needs days or weeks to change. All other 
 show live data from the official APIs; board members' names are masked by the Ministry of
 Justice at source.
 
-## 🧭 Architecture
+## Architecture
 
 ```mermaid
 flowchart LR
@@ -105,7 +105,7 @@ src/firm_radar/
 └── cli.py        firm-radar jobs | ingest-bzp | lookup
 ```
 
-## 📚 Data sources and their terms
+## Data sources and their terms
 
 Only official, documented, public interfaces are used. No website is scraped.
 
@@ -119,7 +119,7 @@ Attribution: data from Krajowy Rejestr Sądowy (Ministerstwo Sprawiedliwości), 
 VAT (Ministerstwo Finansów) and Biuletyn Zamówień Publicznych (Urząd Zamówień Publicznych).
 The project is independent and not affiliated with any public authority.
 
-## 🔌 API
+## API
 
 Interactive docs at `/docs` (OpenAPI at `/openapi.json`).
 
@@ -137,7 +137,7 @@ curl -s "localhost:8093/api/v1/search?q=0000019193" | jq '.results[0]'
 curl -s "localhost:8093/api/v1/companies/1/history" | jq '.timeline[0].changes'
 ```
 
-## 🛠 Tech stack
+## Tech stack
 
 | Layer | Used |
 |---|---|
@@ -146,7 +146,7 @@ curl -s "localhost:8093/api/v1/companies/1/history" | jq '.timeline[0].changes'
 | UI | Jinja2 + htmx, Polish with an English toggle |
 | Quality | pytest, aioresponses, ruff, mypy (strict), GitHub Actions |
 
-## 🚀 Quick start
+## Quick start
 
 Docker Compose (project `firm-radar-demo`, app on **http://localhost:8093**, PostgreSQL on
 host port **55433**):
@@ -173,7 +173,7 @@ Configuration is read from `FIRM_RADAR_*` environment variables (see
 [`config.py`](src/firm_radar/config.py)): database URL, cache TTLs, white list budget,
 refresh interval, number of BZP days to ingest, `FIRM_RADAR_SCHEDULER_ENABLED`.
 
-## 🧪 Tests and quality
+## Tests and quality
 
 ```bash
 docker compose up -d db
@@ -192,7 +192,7 @@ uv run ruff check . && uv run ruff format --check . && uv run mypy
 - CI (GitHub Actions): ruff, mypy (strict), Alembic upgrade + downgrade, pytest with a
   PostgreSQL service, Docker image build.
 
-## 🧱 Key design decisions
+## Key design decisions
 
 - **Snapshots on change, not on every check.** A SHA-256 of the canonical JSON decides whether
   anything changed; `last_checked_at` is updated either way. History stays small and every
@@ -212,7 +212,7 @@ uv run ruff check . && uv run ruff format --check . && uv run mypy
   `pathspec` dependency; PostgreSQL is reached through asyncpg (Apache-2.0) instead of the
   LGPL psycopg. Every component is listed in [`3rdparty_licenses.md`](3rdparty_licenses.md).
 
-## 🚧 Limitations
+## Limitations
 
 - **Information only.** Registry APIs are not certified extracts; only documents issued by the
   registries are legally binding. Data can lag behind the registers.
@@ -231,11 +231,11 @@ uv run ruff check . && uv run ruff format --check . && uv run mypy
 - The in-process scheduler suits a single instance; several instances are safe (advisory lock)
   but only one does the work.
 
-## 📝 Changelog
+## Changelog
 
 See [`CHANGELOG.md`](CHANGELOG.md).
 
-## 📄 Licence
+## Licence
 
 [MIT](LICENSE) © 2026 Maciej Zieliński. Third-party components and their licenses:
 [`3rdparty_licenses.md`](3rdparty_licenses.md).
