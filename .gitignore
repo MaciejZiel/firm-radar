@@ -10,3 +10,6 @@ htmlcov/
 dist/
 build/
 .playwright-cli/
+.venv-demo/
+deploy/termux/firm-radar.env
+deploy/termux/run/
