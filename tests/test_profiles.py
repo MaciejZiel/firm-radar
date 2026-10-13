@@ -13,7 +13,7 @@ from firm_radar.services.profiles import AllSourcesFailed, CompanyNotFound, Prof
 from firm_radar.sources import Sources
 from tests import cassettes
 
-KRS_NO = "0000999901"
+KRS_NO = "0009999901"
 NIP = "1234563218"
 
 
@@ -30,7 +30,7 @@ async def _expire_cache(sessionmaker: async_sessionmaker[AsyncSession]) -> None:
 
 async def test_resolve_by_nip_follows_to_krs(profiles: ProfileService, http: aioresponses) -> None:
     cassettes.whitelist(http, "nip", NIP, "wl_nip_1234563218.json")
-    cassettes.krs_extract(http, KRS_NO, "krs_odpis_0000999901_v1.json")
+    cassettes.krs_extract(http, KRS_NO, "krs_odpis_0009999901_v1.json")
     result = await profiles.resolve(Query(IdKind.NIP, NIP))
     assert result.created
     assert (result.company.krs, result.company.nip, result.company.regon) == (
@@ -47,7 +47,7 @@ async def test_resolve_by_nip_follows_to_krs(profiles: ProfileService, http: aio
 async def test_same_data_does_not_create_new_snapshot(
     profiles: ProfileService, http: aioresponses
 ) -> None:
-    cassettes.krs_extract(http, KRS_NO, "krs_odpis_0000999901_v1.json")
+    cassettes.krs_extract(http, KRS_NO, "krs_odpis_0009999901_v1.json")
     cassettes.whitelist(http, "nip", NIP, "wl_nip_1234563218.json")
     first = await profiles.resolve(Query(IdKind.KRS, KRS_NO))
     again = await profiles.refresh(first.company.id)  # served from the response cache
@@ -60,12 +60,12 @@ async def test_refresh_records_changes(
     http: aioresponses,
     sessionmaker: async_sessionmaker[AsyncSession],
 ) -> None:
-    cassettes.krs_extract(http, KRS_NO, "krs_odpis_0000999901_v1.json")
+    cassettes.krs_extract(http, KRS_NO, "krs_odpis_0009999901_v1.json")
     cassettes.whitelist(http, "nip", NIP, "wl_nip_1234563218.json")
     first = await profiles.resolve(Query(IdKind.KRS, KRS_NO))
 
     await _expire_cache(sessionmaker)
-    cassettes.krs_extract(http, KRS_NO, "krs_odpis_0000999901_v2.json")
+    cassettes.krs_extract(http, KRS_NO, "krs_odpis_0009999901_v2.json")
     cassettes.whitelist(http, "nip", NIP, "wl_nip_1234563218_removed.json")
     second = await profiles.refresh(first.company.id)
 
@@ -92,12 +92,12 @@ async def test_whitelist_outage_keeps_previous_vat_section(
     http: aioresponses,
     sessionmaker: async_sessionmaker[AsyncSession],
 ) -> None:
-    cassettes.krs_extract(http, KRS_NO, "krs_odpis_0000999901_v1.json")
+    cassettes.krs_extract(http, KRS_NO, "krs_odpis_0009999901_v1.json")
     cassettes.whitelist(http, "nip", NIP, "wl_nip_1234563218.json")
     first = await profiles.resolve(Query(IdKind.KRS, KRS_NO))
 
     await _expire_cache(sessionmaker)
-    cassettes.krs_extract(http, KRS_NO, "krs_odpis_0000999901_v1.json")
+    cassettes.krs_extract(http, KRS_NO, "krs_odpis_0009999901_v1.json")
     http.get(re.compile(r".*/search/nip/.*"), status=503, repeat=True)
     second = await profiles.refresh(first.company.id)
 
@@ -124,7 +124,7 @@ async def test_all_sources_down_for_new_company(
 async def test_search_local_is_accent_insensitive(
     profiles: ProfileService, http: aioresponses
 ) -> None:
-    cassettes.krs_extract(http, KRS_NO, "krs_odpis_0000999901_v1.json")
+    cassettes.krs_extract(http, KRS_NO, "krs_odpis_0009999901_v1.json")
     cassettes.whitelist(http, "nip", NIP, "wl_nip_1234563218.json")
     await profiles.resolve(Query(IdKind.KRS, KRS_NO))
     assert [c.krs for c in await profiles.search_local("przykladowa")] == [KRS_NO]

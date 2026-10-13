@@ -28,7 +28,7 @@ from firm_radar.sources.whitelist import parse_vat
 
 DATA = Path(__file__).parent / "demo_data"
 SEED_NIP = "1234563218"
-SEED_KRS = "0000999901"
+SEED_KRS = "0009999901"
 BZP_DAY = date(2026, 10, 1)
 NOTE = "Fictional demo data"
 
@@ -80,10 +80,10 @@ async def seed(
     first = now - timedelta(days=30)
     second = now - timedelta(days=2)
     await profiles.store(
-        _collected("krs_odpis_0000999901_v1.json", "wl_nip_1234563218.json", first), now=first
+        _collected("krs_odpis_0009999901_v1.json", "wl_nip_1234563218.json", first), now=first
     )
     await profiles.store(
-        _collected("krs_odpis_0000999901_v2.json", "wl_nip_1234563218_removed.json", second),
+        _collected("krs_odpis_0009999901_v2.json", "wl_nip_1234563218_removed.json", second),
         now=second,
     )
     await procurement.import_notices(BZP_DAY, _load("bzp_notices_2026-10-01.json"))

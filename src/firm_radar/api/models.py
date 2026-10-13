@@ -17,7 +17,7 @@ from firm_radar.sources.bzp import NOTICE_PDF_URL
 EXAMPLE_COMPANY: JsonDict = {
     "id": 1,
     "name": "PRZYKŁADOWA SPÓŁKA TESTOWA SP. Z O.O.",
-    "krs": "0000999901",
+    "krs": "0009999901",
     "nip": "1234563218",
     "regon": "123456785",
     "legal_form": "SPÓŁKA Z OGRANICZONĄ ODPOWIEDZIALNOŚCIĄ",

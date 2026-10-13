@@ -15,7 +15,7 @@ from firm_radar.sources.bzp import clean_nip, parse_awards
 from firm_radar.sources.krs import parse_extract
 from tests import cassettes
 
-KRS_NO = "0000999901"
+KRS_NO = "0009999901"
 NIP = "1234563218"
 
 
@@ -23,7 +23,7 @@ NIP = "1234563218"
 
 
 def test_parse_krs_extract() -> None:
-    data = parse_extract(cassettes.load("krs_odpis_0000999901_v1.json"))
+    data = parse_extract(cassettes.load("krs_odpis_0009999901_v1.json"))
     assert data.krs == KRS_NO
     assert data.name.startswith("PRZYKŁADOWA SPÓŁKA TESTOWA")
     assert (data.nip, data.regon) == (NIP, "123456785")
@@ -44,7 +44,7 @@ def test_parse_tolerates_sparse_payload() -> None:
 
 
 async def test_krs_extract_is_cached(sources: Sources, http: aioresponses) -> None:
-    cassettes.krs_extract(http, KRS_NO, "krs_odpis_0000999901_v1.json")
+    cassettes.krs_extract(http, KRS_NO, "krs_odpis_0009999901_v1.json")
     first = await sources.krs.current_extract(KRS_NO)
     second = await sources.krs.current_extract(KRS_NO)  # no second response registered
     assert first is not None
@@ -56,7 +56,7 @@ async def test_krs_extract_is_cached(sources: Sources, http: aioresponses) -> No
 
 async def test_krs_falls_back_to_association_register(sources: Sources, http: aioresponses) -> None:
     cassettes.krs_extract(http, KRS_NO, None, register="P")
-    cassettes.krs_extract(http, KRS_NO, "krs_odpis_0000999901_v1.json", register="S")
+    cassettes.krs_extract(http, KRS_NO, "krs_odpis_0009999901_v1.json", register="S")
     extract = await sources.krs.current_extract(KRS_NO)
     assert extract is not None
     assert extract.data.registry == "S"
@@ -74,7 +74,7 @@ async def test_retries_then_succeeds(
 ) -> None:
     url = re.compile(rf".*/OdpisAktualny/{KRS_NO}\?.*rejestr=P.*")
     http.get(url, status=503, body="<html>maintenance</html>")
-    cassettes.krs_extract(http, KRS_NO, "krs_odpis_0000999901_v1.json")
+    cassettes.krs_extract(http, KRS_NO, "krs_odpis_0009999901_v1.json")
     assert await sources.krs.current_extract(KRS_NO) is not None
 
 
@@ -98,8 +98,8 @@ async def test_bulletin_pads_numbers(sources: Sources, http: aioresponses) -> No
     )
     assert await sources.krs.daily_bulletin(date(2026, 10, 1)) == [
         "0000000123",
-        "0000999901",
-        "0000999902",
+        "0009999901",
+        "0009999902",
     ]
 
 

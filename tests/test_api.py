@@ -7,12 +7,12 @@ from firm_radar.models import SourceCache
 from tests import cassettes
 from tests.asgi import AsgiClient
 
-KRS_NO = "0000999901"
+KRS_NO = "0009999901"
 NIP = "1234563218"
 
 
 def _register_v1(http: aioresponses) -> None:
-    cassettes.krs_extract(http, KRS_NO, "krs_odpis_0000999901_v1.json")
+    cassettes.krs_extract(http, KRS_NO, "krs_odpis_0009999901_v1.json")
     cassettes.whitelist(http, "nip", NIP, "wl_nip_1234563218.json")
 
 
@@ -88,7 +88,7 @@ async def test_refresh_history_and_diff(
     async with sessionmaker() as session:
         await session.execute(SourceCache.__table__.delete())
         await session.commit()
-    cassettes.krs_extract(http, KRS_NO, "krs_odpis_0000999901_v2.json")
+    cassettes.krs_extract(http, KRS_NO, "krs_odpis_0009999901_v2.json")
     cassettes.whitelist(http, "nip", NIP, "wl_nip_1234563218.json")
 
     refreshed = (await client.post(f"/api/v1/companies/{company_id}/refresh")).json()

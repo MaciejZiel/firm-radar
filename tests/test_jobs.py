@@ -18,7 +18,7 @@ from firm_radar.sources import Sources
 from firm_radar.sources.base import today, utcnow
 from tests import cassettes
 
-KRS_NO = "0000999901"
+KRS_NO = "0009999901"
 NIP = "1234563218"
 
 
@@ -39,7 +39,7 @@ def runner(
 
 
 async def _track_company(profiles: ProfileService, http: aioresponses) -> int:
-    cassettes.krs_extract(http, KRS_NO, "krs_odpis_0000999901_v1.json")
+    cassettes.krs_extract(http, KRS_NO, "krs_odpis_0009999901_v1.json")
     cassettes.whitelist(http, "nip", NIP, "wl_nip_1234563218.json")
     return (await profiles.resolve(Query(IdKind.KRS, KRS_NO))).company.id
 
@@ -54,7 +54,7 @@ async def test_bulletin_triggers_refresh_bypassing_cache(
         payload=cassettes.load("krs_biuletyn.json"),
     )
     # The KRS extract is still cached, but the bulletin says the company changed.
-    cassettes.krs_extract(http, KRS_NO, "krs_odpis_0000999901_v2.json")
+    cassettes.krs_extract(http, KRS_NO, "krs_odpis_0009999901_v2.json")
     report = JobReport()
     await runner.refresh_from_bulletin(yesterday, report)
     assert (report.bulletin_hits, report.refreshed, report.changed) == (1, 1, 1)

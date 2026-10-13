@@ -3,12 +3,12 @@
     "rodzaj": "Aktualny",
     "naglowekA": {
       "rejestr": "RejP",
-      "numerKRS": "0000999901",
+      "numerKRS": "0009999901",
       "dataCzasOdpisu": "01.09.2026 10:00:00",
-      "stanZDnia": "01.09.2026",
+      "stanZDnia": "05.10.2026",
       "dataRejestracjiWKRS": "15.03.2019",
-      "numerOstatniegoWpisu": 7,
-      "dataOstatniegoWpisu": "20.08.2026",
+      "numerOstatniegoWpisu": 8,
+      "dataOstatniegoWpisu": "05.10.2026",
       "sygnaturaAktSprawyDotyczacejOstatniegoWpisu": "XX.TEST NS-REJ.KRS/1/26/1",
       "oznaczenieSaduDokonujacegoOstatniegoWpisu": "SĄD TESTOWY",
       "stanPozycji": 1
@@ -34,9 +34,8 @@
             "miejscowosc": "TESTOWO"
           },
           "adres": {
-            "ulica": "UL. PRZYKŁADOWA",
-            "nrDomu": "1",
-            "nrLokalu": "2",
+            "ulica": "UL. ZMYŚLONA",
+            "nrDomu": "10",
             "miejscowosc": "TESTOWO",
             "kodPocztowy": "00-001",
             "poczta": "TESTOWO",
@@ -46,7 +45,7 @@
         },
         "kapital": {
           "wysokoscKapitaluZakladowego": {
-            "wartosc": "5000,00",
+            "wartosc": "50000,00",
             "waluta": "PLN"
           }
         }
@@ -67,6 +66,19 @@
                 "pesel": "9**********"
               },
               "funkcjaWOrganie": "PREZES ZARZĄDU",
+              "czyZawieszona": false
+            },
+            {
+              "nazwisko": {
+                "nazwiskoICzlon": "N****"
+              },
+              "imiona": {
+                "imie": "A***"
+              },
+              "identyfikator": {
+                "pesel": "8**********"
+              },
+              "funkcjaWOrganie": "CZŁONEK ZARZĄDU",
               "czyZawieszona": false
             }
           ]
