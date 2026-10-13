@@ -92,22 +92,22 @@ Use `run-demo.sh run` as the command of a service supervisor if you have one (fo
 
 ## Memory footprint
 
-Measured on a Linux x86-64 development machine with Python 3.14.4, one uvicorn worker (asyncio
+Measured on a Linux x86-64 development machine with CPython 3.14.4 (regular build, not free-threaded), one uvicorn worker (asyncio
 loop, h11), a pool of 2 database connections and PostgreSQL 18 in a container. The server
 has a different CPU and libc (bionic), so treat the numbers as a close estimate, and
 re-measure there with `run-demo.sh status` (it prints `VmRSS` and the peak `VmHWM`).
 
 | Situation | App process RSS |
 |---|---|
-| Idle, right after start | 120 MB |
-| After opening every page and the API docs once | 126 MB |
-| After 1500 page requests at 16 concurrent connections (rate limit off) | 158 MB (peak 189 MB) |
+| Idle, right after start | 98 MB |
+| After opening every page and the API docs once | 105 MB |
+| After 1500 page requests at 16 concurrent connections (rate limit off) | 117 MB (also the peak) |
 
 PostgreSQL adds one backend process per pooled connection: 17 to 18 MB RSS each in this
 test, most of it shared pages. With `FIRM_RADAR_DB_POOL_SIZE=2` and
 `FIRM_RADAR_DB_MAX_OVERFLOW=2` that is at most four backends. The database itself is
 tiny (about 8 MB with the demo data); it uses the shared PostgreSQL instance of the
-server, so no extra postmaster is started. Plan for roughly 150 to 200 MB for the app
+server, so no extra postmaster is started. Plan for roughly 120 to 150 MB for the app
 plus the backends.
 
 Ways to lower it if needed: `--limit-concurrency` in `run-demo.sh` (32 now) bounds the
@@ -115,7 +115,7 @@ number of simultaneous requests, and the rate limit bounds a single client.
 
 ## Not covered
 
-- A first request to `/docs` builds the OpenAPI schema once (the whole page tour in the table above cost about 6 MB); disable it in
+- A first request to `/docs` builds the OpenAPI schema once (the whole page tour in the table above cost about 7 MB); disable it in
   nginx if you do not want to expose it.
 - The demo does not show live registry data. Run the Docker Compose setup from the main
   README for that.

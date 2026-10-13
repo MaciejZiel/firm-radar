@@ -176,7 +176,7 @@ a small fictional dataset (`firm-radar seed-demo`), the registries are never cal
 scheduler does not start, writes return `403` and each client is limited to
 `FIRM_RADAR_DEMO_RATE_LIMIT_PER_MINUTE` requests a minute (default 60). It needs no secrets.
 [`deploy/termux`](deploy/termux/README.md) has a run script, an environment template, an
-nginx server block and the measured memory footprint (about 120 MB idle, 160 MB after a
+nginx server block and the measured memory footprint (about 100 MB idle, 117 MB after a
 burst of 1500 requests, one worker) for running it on a small home server without Docker.
 
 Configuration is read from `FIRM_RADAR_*` environment variables (see
