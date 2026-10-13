@@ -36,7 +36,7 @@ Polish, with an English toggle.
 |---|---|
 | ![Profile](docs/screenshots/profile.png) | ![Timeline](docs/screenshots/timeline-fictional.png) |
 
-| Data sources and health (English UI) | API docs | Phone |
+| Data sources and health (English UI) | API docs | Mobile layout |
 |---|---|---|
 | ![Sources](docs/screenshots/sources-en.png) | ![OpenAPI](docs/screenshots/openapi.png) | ![Mobile](docs/screenshots/mobile.png) |
 
