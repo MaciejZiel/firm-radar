@@ -130,7 +130,8 @@ docker compose up --build
 docker compose down -v   # stop and remove the demo database
 ```
 
-Local development with [uv](https://docs.astral.sh/uv/):
+Local development needs Python 3.12+, [uv](https://docs.astral.sh/uv/) and Docker (for
+PostgreSQL 17):
 
 ```bash
 docker compose up -d db
