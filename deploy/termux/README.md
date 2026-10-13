@@ -115,7 +115,7 @@ number of simultaneous requests, and the rate limit bounds a single client.
 
 ## Not covered
 
-- A first request to `/docs` builds the OpenAPI schema once (a few MB); disable it in
+- A first request to `/docs` builds the OpenAPI schema once (the whole page tour in the table above cost about 6 MB); disable it in
   nginx if you do not want to expose it.
 - The demo does not show live registry data. Run the Docker Compose setup from the main
   README for that.
