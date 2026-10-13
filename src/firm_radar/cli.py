@@ -4,6 +4,7 @@ firm-radar jobs            # one full cycle: KRS bulletin, stale refresh, BZP in
 firm-radar ingest-bzp --days 7
 firm-radar ingest-bzp --day 2026-10-01 --force
 firm-radar lookup 0000019193
+firm-radar seed-demo      # fictional dataset for the read-only demo
 """
 
 from __future__ import annotations
@@ -18,6 +19,7 @@ import aiohttp
 
 from firm_radar.config import get_settings
 from firm_radar.db import Database
+from firm_radar.demo import seed
 from firm_radar.identifiers import detect
 from firm_radar.services.jobs import JobRunner
 from firm_radar.services.procurement import ProcurementService
@@ -46,6 +48,9 @@ async def _run(args: argparse.Namespace) -> int:
                 for r in results:
                     state = "skipped (already ingested)" if r.skipped else "ingested"
                     print(f"{r.day}: {r.notices} notices, {r.awards} awards - {state}")
+            elif args.command == "seed-demo":
+                loaded = await seed(database.sessionmaker, profiles, procurement)
+                print("demo data loaded" if loaded else "database not empty, nothing changed")
             elif args.command == "lookup":
                 result = await profiles.resolve(detect(args.identifier))
                 print(json.dumps(result.snapshot.data, ensure_ascii=False, indent=2))
@@ -62,6 +67,7 @@ def main(argv: list[str] | None = None) -> int:
     ingest.add_argument("--days", type=int, default=get_settings().bzp_ingest_days)
     ingest.add_argument("--day", type=date.fromisoformat)
     ingest.add_argument("--force", action="store_true", help="re-ingest an already ingested day")
+    sub.add_parser("seed-demo", help="load the fictional demo dataset into an empty database")
     lookup = sub.add_parser("lookup", help="resolve an identifier and print the snapshot")
     lookup.add_argument("identifier")
     args = parser.parse_args(argv)

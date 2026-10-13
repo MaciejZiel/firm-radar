@@ -1,0 +1,30 @@
+{
+  "result": {
+    "subject": {
+      "name": "PRZYKŁADOWA SPÓŁKA TESTOWA SPÓŁKA Z OGRANICZONĄ ODPOWIEDZIALNOŚCIĄ",
+      "nip": "1234563218",
+      "statusVat": "Czynny",
+      "regon": "123456785",
+      "pesel": null,
+      "krs": "0000999901",
+      "residenceAddress": null,
+      "workingAddress": "UL. PRZYKŁADOWA 1/2, 00-001 TESTOWO",
+      "representatives": [],
+      "authorizedClerks": [],
+      "partners": [],
+      "registrationLegalDate": "2019-04-01",
+      "registrationDenialBasis": null,
+      "registrationDenialDate": null,
+      "restorationBasis": null,
+      "restorationDate": null,
+      "removalBasis": null,
+      "removalDate": null,
+      "accountNumbers": [
+        "00000000000000000000000001"
+      ],
+      "hasVirtualAccounts": false
+    },
+    "requestId": "TEST-0001",
+    "requestDateTime": "01-09-2026 10:00:00"
+  }
+}

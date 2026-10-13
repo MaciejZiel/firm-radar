@@ -1,0 +1,144 @@
+[
+  {
+    "clientType": "1.1.2",
+    "orderType": "Services",
+    "tenderType": "1.1.1",
+    "noticeType": "TenderResultNotice",
+    "noticeNumber": "2026/BZP 00000001/01",
+    "bzpNumber": "2026/BZP 00000001",
+    "isTenderAmountBelowEU": true,
+    "publicationDate": "2026-10-01T01:00:00.1234567Z",
+    "orderObject": "Zamówienie testowe nr 1 - usługi fikcyjne",
+    "cpvCode": "72000000-5 (Usługi informatyczne)",
+    "submittingOffersDate": null,
+    "procedureResult": "zawarcieUmowy",
+    "organizationName": "Gmina Testowo",
+    "organizationCity": "Testowo",
+    "organizationProvince": "PL14",
+    "organizationCountry": "PL",
+    "organizationNationalId": "1111111111",
+    "organizationId": "1",
+    "tenderId": "ocds-148610-test-1",
+    "htmlBody": "<html>pominięto</html>",
+    "contractors": [
+      {
+        "contractorName": "Przykładowa Spółka Testowa sp. z o.o.",
+        "contractorCity": "Testowo",
+        "contractorProvince": "PL14",
+        "contractorCountry": "PL",
+        "contractorNationalId": "1234563218"
+      },
+      {
+        "contractorName": "Przykładowa Spółka Testowa sp. z o.o.",
+        "contractorCity": "Testowo",
+        "contractorProvince": "PL14",
+        "contractorCountry": "PL",
+        "contractorNationalId": "123-456-32-18"
+      }
+    ],
+    "objectId": "00000000-0000-0000-0000-000000000001"
+  },
+  {
+    "clientType": "1.1.2",
+    "orderType": "Services",
+    "tenderType": "1.1.1",
+    "noticeType": "TenderResultNotice",
+    "noticeNumber": "2026/BZP 00000002/01",
+    "bzpNumber": "2026/BZP 00000002",
+    "isTenderAmountBelowEU": true,
+    "publicationDate": "2026-10-01T02:00:00.1234567Z",
+    "orderObject": "Zamówienie testowe nr 2 - usługi fikcyjne",
+    "cpvCode": "72000000-5 (Usługi informatyczne)",
+    "submittingOffersDate": null,
+    "procedureResult": "zawarcieUmowy",
+    "organizationName": "Gmina Testowo",
+    "organizationCity": "Testowo",
+    "organizationProvince": "PL14",
+    "organizationCountry": "PL",
+    "organizationNationalId": "1111111111",
+    "organizationId": "1",
+    "tenderId": "ocds-148610-test-2",
+    "htmlBody": "<html>pominięto</html>",
+    "contractors": [
+      {
+        "contractorName": "Inna Firma Fikcyjna",
+        "contractorCity": "Testowo",
+        "contractorProvince": "PL14",
+        "contractorCountry": "PL",
+        "contractorNationalId": "NIP: 1234563218"
+      },
+      {
+        "contractorName": null,
+        "contractorCity": null,
+        "contractorProvince": null,
+        "contractorCountry": null,
+        "contractorNationalId": null
+      }
+    ],
+    "objectId": "00000000-0000-0000-0000-000000000002"
+  },
+  {
+    "clientType": "1.1.2",
+    "orderType": "Services",
+    "tenderType": "1.1.1",
+    "noticeType": "TenderResultNotice",
+    "noticeNumber": "2026/BZP 00000003/01",
+    "bzpNumber": "2026/BZP 00000003",
+    "isTenderAmountBelowEU": true,
+    "publicationDate": "2026-10-01T03:00:00.1234567Z",
+    "orderObject": "Zamówienie testowe nr 3 - usługi fikcyjne",
+    "cpvCode": "72000000-5 (Usługi informatyczne)",
+    "submittingOffersDate": null,
+    "procedureResult": "zawarcieUmowy",
+    "organizationName": "Gmina Testowo",
+    "organizationCity": "Testowo",
+    "organizationProvince": "PL14",
+    "organizationCountry": "PL",
+    "organizationNationalId": "1111111111",
+    "organizationId": "1",
+    "tenderId": "ocds-148610-test-3",
+    "htmlBody": "<html>pominięto</html>",
+    "contractors": [
+      {
+        "contractorName": "Zagraniczny Wykonawca Testowy",
+        "contractorCity": "Testowo",
+        "contractorProvince": "PL14",
+        "contractorCountry": "PL",
+        "contractorNationalId": "DE123"
+      }
+    ],
+    "objectId": "00000000-0000-0000-0000-000000000003"
+  },
+  {
+    "clientType": "1.1.2",
+    "orderType": "Services",
+    "tenderType": "1.1.1",
+    "noticeType": "ContractNotice",
+    "noticeNumber": "2026/BZP 00000004/01",
+    "bzpNumber": "2026/BZP 00000004",
+    "isTenderAmountBelowEU": true,
+    "publicationDate": "2026-10-01T04:00:00.1234567Z",
+    "orderObject": "Zamówienie testowe nr 4 - usługi fikcyjne",
+    "cpvCode": "72000000-5 (Usługi informatyczne)",
+    "submittingOffersDate": null,
+    "procedureResult": "zawarcieUmowy",
+    "organizationName": "Gmina Testowo",
+    "organizationCity": "Testowo",
+    "organizationProvince": "PL14",
+    "organizationCountry": "PL",
+    "organizationNationalId": "1111111111",
+    "organizationId": "1",
+    "tenderId": "ocds-148610-test-4",
+    "htmlBody": "<html>pominięto</html>",
+    "contractors": [
+      {
+        "contractorName": "Ktoś",
+        "contractorCity": "Testowo",
+        "contractorProvince": "PL14",
+        "contractorCountry": "PL",
+        "contractorNationalId": "1234563218"
+      }
+    ],
+    "objectId": "00000000-0000-0000-0000-000000000004"
+  }
+]
