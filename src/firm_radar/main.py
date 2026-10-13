@@ -49,7 +49,12 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     @asynccontextmanager
     async def lifespan(app: FastAPI) -> AsyncIterator[None]:
-        database = Database(settings.database_url, echo=settings.sql_echo)
+        database = Database(
+            settings.database_url,
+            echo=settings.sql_echo,
+            pool_size=settings.db_pool_size,
+            max_overflow=settings.db_max_overflow,
+        )
         http = aiohttp.ClientSession()
         store = PgSourceStore(database.sessionmaker)
         sources = Sources.build(http, settings, store)
