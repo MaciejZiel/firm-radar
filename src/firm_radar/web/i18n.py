@@ -132,6 +132,12 @@ TEXTS: dict[str, dict[Lang, str]] = {
     "status.degraded": {"pl": "z błędami", "en": "degraded"},
     "status.down": {"pl": "niedostępne", "en": "down"},
     "status.unknown": {"pl": "brak danych", "en": "no data"},
+    "demo.banner": {
+        "pl": "Wersja demonstracyjna: dane są fikcyjne, serwis działa tylko do odczytu i nie "
+        "odpytuje rejestrów.",
+        "en": "Demo: the data is fictional, the service is read-only and does not query the "
+        "registries.",
+    },
     "footer.disclaimer": {
         "pl": "Dane mają charakter informacyjny. Wiążące są wyłącznie odpisy i zaświadczenia "
         "wydawane przez rejestry. Projekt niezależny, niezwiązany z administracją publiczną.",

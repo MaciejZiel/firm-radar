@@ -6,6 +6,7 @@ import hashlib
 import json
 import logging
 from dataclasses import dataclass, field
+from datetime import datetime
 
 from sqlalchemy import or_, select
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
@@ -224,8 +225,14 @@ class ProfileService:
         collected = await self.collect(query)
         return await self._store(collected, company_id=company_id)
 
-    async def _store(self, collected: Collected, company_id: int | None) -> RefreshResult:
-        now = utcnow()
+    async def store(self, collected: Collected, *, now: datetime | None = None) -> RefreshResult:
+        """Persist registry data that was gathered elsewhere (used to seed the demo dataset)."""
+        return await self._store(collected, company_id=None, now=now)
+
+    async def _store(
+        self, collected: Collected, company_id: int | None, now: datetime | None = None
+    ) -> RefreshResult:
+        now = now or utcnow()
         async with self._sessionmaker() as session, session.begin():
             company: Company | None = None
             if company_id is not None:

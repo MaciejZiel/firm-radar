@@ -56,7 +56,7 @@ class WhiteListClient:
         url = self.search_url(kind, value, on)
         cached = await self._fetcher.store.cache_get(self.source, key)
         if cached is not None:
-            return VatLookup(_parse(cached.payload), cached.fetched_at, True, url)
+            return VatLookup(parse_vat(cached.payload), cached.fetched_at, True, url)
 
         if await self._fetcher.store.requests_today(self.source) >= self._budget:
             raise QuotaExceeded(
@@ -73,7 +73,7 @@ class WhiteListClient:
         fetched_at = await self._fetcher.store.cache_put(
             self.source, key, 200, result.payload, self._ttl
         )
-        return VatLookup(_parse(result.payload), fetched_at, False, url)
+        return VatLookup(parse_vat(result.payload), fetched_at, False, url)
 
 
 def _date(value: Any) -> date | None:
@@ -85,7 +85,7 @@ def _date(value: Any) -> date | None:
         return None
 
 
-def _parse(payload: Any) -> VatData | None:
+def parse_vat(payload: Any) -> VatData | None:
     result = (payload or {}).get("result") or {}
     subject = result.get("subject")
     if not subject and result.get("subjects"):

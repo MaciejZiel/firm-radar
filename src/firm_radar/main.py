@@ -15,6 +15,7 @@ from firm_radar import __version__
 from firm_radar.api.routes import router as api_router
 from firm_radar.config import Settings, get_settings
 from firm_radar.db import Database
+from firm_radar.demo import DemoGuard
 from firm_radar.services.jobs import JobRunner, Scheduler
 from firm_radar.services.procurement import ProcurementService
 from firm_radar.services.profiles import ProfileService
@@ -48,7 +49,12 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     @asynccontextmanager
     async def lifespan(app: FastAPI) -> AsyncIterator[None]:
-        database = Database(settings.database_url, echo=settings.sql_echo)
+        database = Database(
+            settings.database_url,
+            echo=settings.sql_echo,
+            pool_size=settings.db_pool_size,
+            max_overflow=settings.db_max_overflow,
+        )
         http = aiohttp.ClientSession()
         store = PgSourceStore(database.sessionmaker)
         sources = Sources.build(http, settings, store)
@@ -59,7 +65,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         app.state.profiles = profiles
         app.state.procurement = procurement
         scheduler: Scheduler | None = None
-        if settings.scheduler_enabled:
+        if settings.scheduler_enabled and not settings.demo_mode:
             runner = JobRunner(settings, database.sessionmaker, sources, profiles, procurement)
             scheduler = Scheduler(runner, settings.refresh_interval_s)
             scheduler.start()
@@ -81,6 +87,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         license_info={"name": "MIT", "identifier": "MIT"},
     )
     app.state.settings = settings
+    if settings.demo_mode:
+        app.add_middleware(DemoGuard, limit_per_minute=settings.demo_rate_limit_per_minute)
     app.include_router(api_router)
     app.include_router(web_router)
     app.mount(

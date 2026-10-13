@@ -62,6 +62,7 @@ Procurement = Annotated[ProcurementService, Depends(get_procurement)]
     responses={400: {"model": ErrorOut, "description": "Malformed identifier"}, **ERRORS},
 )
 async def search(
+    request: Request,
     profiles: Profiles,
     procurement: Procurement,
     q: Annotated[
@@ -80,7 +81,9 @@ async def search(
     ],
 ) -> SearchOut:
     try:
-        return await search_companies(q, profiles, procurement)
+        return await search_companies(
+            q, profiles, procurement, local_only=request.app.state.settings.demo_mode
+        )
     except (ValueError, InvalidQuery) as exc:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, str(exc)) from exc
     except AllSourcesFailed as exc:
@@ -90,9 +93,13 @@ async def search(
 
 
 async def search_companies(
-    q: str, profiles: ProfileService, procurement: ProcurementService
+    q: str, profiles: ProfileService, procurement: ProcurementService, *, local_only: bool = False
 ) -> SearchOut:
-    """Shared by the API and the web UI. Raises ValueError/InvalidQuery/AllSourcesFailed."""
+    """Shared by the API and the web UI. Raises ValueError/InvalidQuery/AllSourcesFailed.
+
+    ``local_only`` (demo mode) answers identifiers from the local database and never calls
+    the registries.
+    """
     query = detect(q)
     if query.kind is IdKind.NAME:
         companies = await profiles.search_local(query.value)
@@ -111,6 +118,23 @@ async def search_companies(
             note=None
             if companies or candidates
             else "Registries offer no name search; look the company up by KRS or NIP first.",
+        )
+    if local_only:
+        local = await profiles.find_local(query)
+        found = await profiles.get(local.id) if local else None
+        if found is None:
+            return SearchOut(
+                query=q,
+                kind=query.kind.value,
+                value=query.value,
+                results=[],
+                note="Demo mode: only the seeded fictional companies can be opened.",
+            )
+        return SearchOut(
+            query=q,
+            kind=query.kind.value,
+            value=query.value,
+            results=[CompanySummary.of(found[0])],
         )
     try:
         result = await profiles.resolve(query)
