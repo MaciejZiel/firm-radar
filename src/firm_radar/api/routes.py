@@ -76,7 +76,7 @@ async def search(
                 "the type. Identifiers are looked up in the registries; names only match "
                 "companies already known to this instance."
             ),
-            examples=["1234563218", "krs:999901", "przykładowa"],
+            examples=["1234563218", "krs:9999901", "przykładowa"],
         ),
     ],
 ) -> SearchOut:

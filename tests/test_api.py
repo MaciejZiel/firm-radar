@@ -34,7 +34,7 @@ async def test_openapi_documents_endpoints(client: AsgiClient) -> None:
 
 async def test_search_by_krs_and_profile(client: AsgiClient, http: aioresponses) -> None:
     _register_v1(http)
-    found = (await client.get("/api/v1/search", params={"q": "999901"})).json()
+    found = (await client.get("/api/v1/search", params={"q": "9999901"})).json()
     assert (found["kind"], found["value"]) == ("krs", KRS_NO)
     [company] = found["results"]
     assert company["nip"] == NIP
