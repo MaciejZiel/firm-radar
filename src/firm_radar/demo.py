@@ -7,9 +7,10 @@ snapshots so the change timeline has something to show.
 
 from __future__ import annotations
 
+import ipaddress
 import json
 import time
-from collections import deque
+from collections import OrderedDict, deque
 from datetime import date, datetime, timedelta
 from pathlib import Path
 from typing import Any
@@ -90,17 +91,30 @@ async def seed(
     return True
 
 
+def client_key(address: str) -> str:
+    """Rate-limit key: IPv4 as is, IPv6 collapsed to its /64 (one subscriber, many addresses)."""
+    try:
+        ip = ipaddress.ip_address(address)
+    except ValueError:
+        return address
+    if isinstance(ip, ipaddress.IPv6Address):
+        if ip.ipv4_mapped is not None:
+            return str(ip.ipv4_mapped)
+        return str(ipaddress.ip_network(f"{ip}/64", strict=False))
+    return str(ip)
+
+
 class DemoGuard:
     """ASGI middleware: GET/HEAD/OPTIONS only, plus a per-client request budget per minute."""
 
     SAFE = frozenset({"GET", "HEAD", "OPTIONS"})
     WINDOW_S = 60.0
-    MAX_CLIENTS = 5000
+    MAX_CLIENTS = 5000  # hard cap on tracked clients (LRU)
 
     def __init__(self, app: ASGIApp, limit_per_minute: int = 60) -> None:
         self.app = app
         self.limit = limit_per_minute
-        self._hits: dict[str, deque[float]] = {}
+        self._hits: OrderedDict[str, deque[float]] = OrderedDict()
 
     async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
         if scope["type"] != "http":
@@ -111,7 +125,7 @@ class DemoGuard:
             await self._reply(send, 403, "This demo is read-only.")
             return
         if self.limit and path != "/healthz" and not path.startswith("/static/"):
-            client = (scope.get("client") or ("unknown", 0))[0]
+            client = client_key((scope.get("client") or ("unknown", 0))[0])
             wait = self._check(client)
             if wait:
                 await self._reply(
@@ -123,14 +137,18 @@ class DemoGuard:
     def _check(self, client: str) -> int:
         """Record a hit; return seconds to wait when the client is over budget, else 0."""
         now = time.monotonic()
-        hits = self._hits.setdefault(client, deque())
+        hits = self._hits.get(client)
+        if hits is None:
+            hits = self._hits[client] = deque()
+            if len(self._hits) > self.MAX_CLIENTS:
+                self._hits.popitem(last=False)  # least recently seen client
+        else:
+            self._hits.move_to_end(client)
         while hits and now - hits[0] > self.WINDOW_S:
             hits.popleft()
         if len(hits) >= self.limit:
             return max(1, int(self.WINDOW_S - (now - hits[0])) + 1)
         hits.append(now)
-        if len(self._hits) > self.MAX_CLIENTS:
-            self._hits = {c: h for c, h in self._hits.items() if h and now - h[-1] <= self.WINDOW_S}
         return 0
 
     @staticmethod
