@@ -169,6 +169,16 @@ uv run firm-radar ingest-bzp --days 7     # fill the procurement index
 uv run firm-radar lookup 5260250995       # resolve one company from the CLI
 ```
 
+### Public demo mode
+
+`FIRM_RADAR_DEMO_MODE=true` turns the service into a read-only demo: lookups are answered from
+a small fictional dataset (`firm-radar seed-demo`), the registries are never called, the
+scheduler does not start, writes return `403` and each client is limited to
+`FIRM_RADAR_DEMO_RATE_LIMIT_PER_MINUTE` requests a minute (default 60). It needs no secrets.
+[`deploy/termux`](deploy/termux/README.md) has a run script, an environment template, an
+nginx server block and the measured memory footprint (about 120 MB idle, 160 MB after a
+burst of 1500 requests, one worker) for running it on a small home server without Docker.
+
 Configuration is read from `FIRM_RADAR_*` environment variables (see
 [`config.py`](src/firm_radar/config.py)): database URL, cache TTLs, white list budget,
 refresh interval, number of BZP days to ingest, `FIRM_RADAR_SCHEDULER_ENABLED`.

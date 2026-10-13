@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Demo mode (`FIRM_RADAR_DEMO_MODE`): read-only, local lookups only, no scheduler, a
+  per-client rate limit and a banner. `firm-radar seed-demo` loads a fictional dataset.
+- Configurable database pool size (`FIRM_RADAR_DB_POOL_SIZE`, `FIRM_RADAR_DB_MAX_OVERFLOW`).
+- `deploy/termux`: run script, environment template, nginx server block and notes for
+  running the demo on a small home server without Docker.
+
 ## [0.1.0] - 2026-10-13
 
 First release.
