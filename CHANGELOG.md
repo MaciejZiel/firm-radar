@@ -11,9 +11,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Demo mode (`FIRM_RADAR_DEMO_MODE`): read-only, local lookups only, no scheduler, a
   per-client rate limit and a banner. `firm-radar seed-demo` loads a fictional dataset.
+- Demo rate limiter keys IPv6 clients by /64 and keeps a bounded LRU of 5000 clients.
 - Configurable database pool size (`FIRM_RADAR_DB_POOL_SIZE`, `FIRM_RADAR_DB_MAX_OVERFLOW`).
 - `deploy/termux`: run script, environment template, nginx server block and notes for
   running the demo on a small home server without Docker.
+
+### Changed
+
+- The sample company uses KRS `0009999901`, a number outside the issued range; the README
+  states that all sample identifiers are fictional or documentation samples.
+- nginx snippet sets `X-Forwarded-Proto` to `https` and documents the missing
+  `CF-Connecting-IP` case.
 
 ## [0.1.0] - 2026-10-13
 
