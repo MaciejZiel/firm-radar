@@ -8,7 +8,7 @@ from tests import cassettes
 
 
 def _company(version: str, vat: VatData | None = None) -> CompanyData:
-    krs = parse_extract(cassettes.load(f"krs_odpis_0000999901_{version}.json"))
+    krs = parse_extract(cassettes.load(f"krs_odpis_0009999901_{version}.json"))
     return merge(Collected(krs=krs, vat=vat, vat_checked=True))
 
 
@@ -63,7 +63,7 @@ def test_scalar_added_and_removed() -> None:
 
 
 def test_merge_prefers_krs_and_fills_ids_from_vat() -> None:
-    vat = VatData(name="VAT NAME", nip="1234563218", regon="123456785", krs="0000999901")
+    vat = VatData(name="VAT NAME", nip="1234563218", regon="123456785", krs="0009999901")
     data = merge(Collected(vat=vat, vat_checked=True))
     assert data.name == "VAT NAME"
-    assert data.identifiers == Identifiers(krs="0000999901", nip="1234563218", regon="123456785")
+    assert data.identifiers == Identifiers(krs="0009999901", nip="1234563218", regon="123456785")

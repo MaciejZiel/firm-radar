@@ -63,6 +63,11 @@ does not exist) because a real company needs days or weeks to change. All other 
 show live data from the official APIs; board members' names are masked by the Ministry of
 Justice at source.
 
+All identifiers in the fixtures and the demo dataset are fictional: KRS `0009999901` is far
+above the range the register has issued, and NIP `1234563218`, REGON `123456785` and the
+buyer NIP `1111111111` are common documentation samples that only satisfy the checksum
+rules. They are not guaranteed to be unassigned.
+
 ## Architecture
 
 ```mermaid
@@ -173,8 +178,9 @@ uv run firm-radar lookup 5260250995       # resolve one company from the CLI
 
 `FIRM_RADAR_DEMO_MODE=true` turns the service into a read-only demo: lookups are answered from
 a small fictional dataset (`firm-radar seed-demo`), the registries are never called, the
-scheduler does not start, writes return `403` and each client is limited to
-`FIRM_RADAR_DEMO_RATE_LIMIT_PER_MINUTE` requests a minute (default 60). It needs no secrets.
+scheduler does not start, writes return `403` and each client (IPv4 address or IPv6 /64)
+is limited to `FIRM_RADAR_DEMO_RATE_LIMIT_PER_MINUTE` requests a minute (default 60), with at
+most 5000 clients tracked. It needs no secrets.
 [`deploy/termux`](deploy/termux/README.md) has a run script, an environment template, an
 nginx server block and the measured memory footprint (about 100 MB idle, 117 MB after a
 burst of 1500 requests, one worker) for running it on a small home server without Docker.

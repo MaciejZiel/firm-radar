@@ -87,6 +87,10 @@ curl -s http://127.0.0.1:8093/healthz
 The app listens on `127.0.0.1:8093` (`HOST` and `PORT` in the env file). It trusts
 `X-Forwarded-For` only from `127.0.0.1`; the nginx block sets that header from
 `CF-Connecting-IP`, which is what makes the per-client rate limit work behind the tunnel.
+`X-Forwarded-Proto` is fixed to `https` because the tunnel always terminates TLS. A request
+without `CF-Connecting-IP` gets no `X-Forwarded-For`, so it is counted under `127.0.0.1` and
+shares one budget with other such requests; it cannot spoof another client. IPv6 clients are
+counted per /64, and the limiter keeps at most 5000 clients (least recently seen dropped).
 Use `run-demo.sh run` as the command of a service supervisor if you have one (for example
 `termux-services`).
 
