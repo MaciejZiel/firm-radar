@@ -188,7 +188,7 @@ refresh interval, number of BZP days to ingest, `FIRM_RADAR_SCHEDULER_ENABLED`.
 ```bash
 docker compose up -d db
 docker compose exec db psql -U firm_radar -c "create database firm_radar_test"
-uv run pytest            # 78 tests
+uv run pytest            # 84 tests
 uv run ruff check . && uv run ruff format --check . && uv run mypy
 ```
 
